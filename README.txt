@@ -1,0 +1,1 @@
+Toto je balíček Holly 2.0 Pro – APK, zdrojové kódy, splash screen a další soubory.
