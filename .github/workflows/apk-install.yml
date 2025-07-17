@@ -1,0 +1,30 @@
+name: Build and Upload APK
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build-apk:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: List APK files
+        run: |
+          echo "APK soubory ve složce:"
+          ls -lh *.apk || echo "Žádné APK nenalezeno."
+
+      - name: Upload APK as artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: Holly_2.0_Pro_APK
+          path: Holly_2.0_Pro.apk
