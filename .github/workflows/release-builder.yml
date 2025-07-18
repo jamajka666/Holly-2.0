@@ -1,24 +1,21 @@
-name: Create Release and Attach APK
+steps:
+  - name: Checkout code
+    uses: actions/checkout@v4
 
-on:
-  push:
-    tags:
-      - 'v*'  # Spustí se jen při pushnutí tagu začínajícího na v
+  - name: Create Release
+    id: create_release
+    uses: softprops/action-gh-release@v1
+    with:
+      tag_name: v1.${{ github.run_number }}
+      name: Holly 2.0 Pro v1.${{ github.run_number }}
+      body: |
+        🆕 **Nové vydání Holly 2.0 Pro**
+        - Automatické sestavení APK
+        - Build ID: ${{ github.run_number }}
+        - Datum: ${{ github.event.head_commit.timestamp }}
 
-permissions:
-  contents: write
-
-jobs:
-  release:
-    name: Create GitHub Release
-    runs-on: ubuntu-latest
-
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Create Release
-        uses: softprops/action-gh-release@v1
-        with:
-          files: Holly_2.0_Pro.apk
-
+  - name: Upload APK
+    uses: softprops/action-gh-release@v1
+    with:
+      files: |
+        Holly_2.0_Pro.apk
