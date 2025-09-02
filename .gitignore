@@ -1,0 +1,34 @@
+# Node / Vite / React
+node_modules/
+dist/
+.vite/
+.env
+.env.local
+.env.*.local
+
+# Logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+*.log
+
+# Editor/OS
+.DS_Store
+.vscode/
+.idea/
+
+# Android/Gradle (pokud později použijeme TWA)
+*.iml
+.gradle/
+local.properties
+/.idea/
+.cxx/
+app/build/
+build/
+*/build/
+captures/
+
+# Misc
+*.keystore
+*.jks
