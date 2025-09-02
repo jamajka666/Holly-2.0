@@ -1,0 +1,13 @@
+{
+  "editor.inlineSuggest.enabled": true,
+  "github.copilot.enable": {
+    "*": true,
+    "plaintext": true,
+    "markdown": true,
+    "scminput": false
+  },
+  "files.exclude": {
+    "node_modules": true,
+    "dist": true
+  }
+}
