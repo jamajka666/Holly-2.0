@@ -1,0 +1,33 @@
+name: "✨ Feature request"
+description: Navrhnout novou funkci nebo vylepšení
+title: "[Feat]: "
+labels: ["enhancement"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Máte nápad na vylepšení Holly 2.0? Vyplňte následující body.
+  - type: textarea
+    id: problem
+    attributes:
+      label: Jaký problém chcete vyřešit?
+      description: Jaký problém má funkce řešit nebo zlepšit?
+      placeholder: "Např. nemohu rychle filtrovat alerty podle typu..."
+    validations:
+      required: true
+  - type: textarea
+    id: solution
+    attributes:
+      label: Jaké vidíte řešení?
+      description: Popište funkci nebo chování, které by pomohlo.
+      placeholder: "Přidat dropdown filtr nad tabulku alertů..."
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Jaké alternativy vás napadly?
+      description: Pokud existují jiné způsoby řešení, popište je.
+  - type: textarea
+    id: context
+    attributes:
+      label: Další kontext
+      description: Sem můžete přidat poznámky, odkazy, screenshoty…
