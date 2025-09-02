@@ -1,0 +1,38 @@
+name: "🐞 Bug report"
+description: Nahlásit chybu nebo problém
+title: "[Bug]: "
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Díky, že hlásíte bug! Prosím vyplňte následující informace.
+  - type: textarea
+    id: what-happened
+    attributes:
+      label: Co se stalo?
+      description: Popište, co se pokazilo a co jste očekávali.
+      placeholder: "Po kliknutí na tlačítko X se nestalo nic..."
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: Kroky k reprodukci
+      description: Jak chybu zopakovat?
+      placeholder: |
+        1. Otevři stránku ...
+        2. Klikni na ...
+        3. Očekával jsem ...
+        4. Ale místo toho ...
+  - type: textarea
+    id: screenshots
+    attributes:
+      label: Screenshoty / logy
+      description: Přilož screenshot nebo log, pokud je to možné.
+  - type: input
+    id: environment
+    attributes:
+      label: Prostředí
+      description: Např. OS, prohlížeč, verze aplikace...
+      placeholder: "Windows 11, Firefox 118"
