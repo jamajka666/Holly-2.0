@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="app.netlify.holly2_pro.twa">
+
+    <application
+        android:allowBackup="true"
+        android:label="Holly 2.0 Pro"
+        android:icon="@mipmap/ic_launcher"
+        android:roundIcon="@mipmap/ic_launcher_round"
+        android:supportsRtl="true"
+        android:theme="@style/Theme.AppCompat.Light.NoActionBar">
+        
+        <!-- Trusted Web Activity launcher -->
+        <activity
+            android:name="com.google.androidbrowserhelper.trusted.LauncherActivity"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN"/>
+                <category android:name="android.intent.category.LAUNCHER"/>
+            </intent-filter>
+
+            <!-- Required metadata -->
+            <meta-data
+     <meta-data
+  android:name="android.support.customtabs.trusted.DEFAULT_URL"
+  android:value="https://hollyasist.trickle.host/" />
+           
+
+            <!-- Optional UI customizations -->
+            <meta-data
+                android:name="android.support.customtabs.trusted.STATUS_BAR_COLOR"
+                android:resource="@color/holly_status_bar" />
+
+            <meta-data
+                android:name="android.support.customtabs.trusted.NAVIGATION_BAR_COLOR"
+                android:resource="@color/holly_nav_bar" />
+        </activity>
+    </application>
+</manifest>

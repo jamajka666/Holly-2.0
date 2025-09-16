@@ -1,0 +1,6 @@
+<resources>
+    <color name="holly_status_bar">#0A0A0A</color>
+    <color name="holly_nav_bar">#0A0A0A</color>
+    <color name="ic_bg">#121212</color>
+    <color name="ic_fg">#FFFFFF</color>
+</resources>
