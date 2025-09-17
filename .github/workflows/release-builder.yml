@@ -16,7 +16,6 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      # Pokud APK už máš v repu (rychlá varianta), zkontrolujeme ho:
       - name: Verify APK exists
         run: |
           test -f Holly_2.0_Pro.apk || (echo "APK not found (Holly_2.0_Pro.apk v rootu repa)" && exit 1)
