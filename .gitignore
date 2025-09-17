@@ -32,3 +32,24 @@ captures/
 # Misc
 *.keystore
 *.jks
+# Android / Gradle
+.local.properties
+local.properties
+*.keystore
+*.jks
+*.ap_
+*.aab
+*.apk
+**/build/
+.cxx/
+.gradle/
+.gradle-cache/
+captures/
+# IDE
+.idea/
+*.iml
+# Node
+node_modules/
+# OS
+.DS_Store
+Thumbs.db
