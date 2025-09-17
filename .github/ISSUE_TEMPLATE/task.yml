@@ -1,0 +1,17 @@
+name: "Task"
+description: Jednoduchý úkol / chore
+title: "chore: krátký popis"
+labels: [chore]
+body:
+  - type: textarea
+    id: context
+    attributes:
+      label: Kontext
+      placeholder: "Co je potřeba udělat a proč?"
+    validations:
+      required: true
+  - type: textarea
+    id: checklist
+    attributes:
+      label: Checklist
+      placeholder: "- [ ] krok 1\n- [ ] krok 2"
