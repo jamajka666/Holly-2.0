@@ -1,21 +1,55 @@
-steps:
-  - name: Checkout code
-    uses: actions/checkout@v4
+name: Release Builder
 
-  - name: Create Release
-    id: create_release
-    uses: softprops/action-gh-release@v1
-    with:
-      tag_name: v1.${{ github.run_number }}
-      name: Holly 2.0 Pro v1.${{ github.run_number }}
-      body: |
-        🆕 **Nové vydání Holly 2.0 Pro**
-        - Automatické sestavení APK
-        - Build ID: ${{ github.run_number }}
-        - Datum: ${{ github.event.head_commit.timestamp }}
+on:
+  workflow_dispatch:
+  push:
+    tags:
+      - "v*"
 
-  - name: Upload APK
-    uses: softprops/action-gh-release@v1
-    with:
-      files: |
-        Holly_2.0_Pro.apk
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Java 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+          cache: gradle
+
+      - name: Set up Android SDK
+        uses: android-actions/setup-android@v3
+
+      - name: Build debug APK (TWA)
+        working-directory: android-twa/Holly2_TWA_Skeleton
+        run: |
+          chmod +x ./gradlew
+          ./gradlew --no-daemon :app:assembleDebug
+          cp app/build/outputs/apk/debug/app-debug.apk "$GITHUB_WORKSPACE/Holly_2.0_Pro.apk"
+          ls -lh "$GITHUB_WORKSPACE/Holly_2.0_Pro.apk"
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: v${{ github.run_number }}
+          name: "Holly 2.0 Pro v${{ github.run_number }}"
+          body: |
+            **Nové vydání Holly 2.0 Pro**
+            - CI build (Gradle): android-twa/Holly2_TWA_Skeleton
+            - Build ID: ${{ github.run_number }}
+            - Commit: ${{ github.sha }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Upload APK asset
+        uses: softprops/action-gh-release@v2
+        with:
+          files: Holly_2.0_Pro.apk
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
