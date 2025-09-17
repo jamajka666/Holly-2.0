@@ -1,0 +1,32 @@
+name: "Bug report"
+description: Nahlášení chyby v Holly 2.0
+title: "bug: krátký popis"
+labels: [bug]
+body:
+  - type: textarea
+    id: what-happened
+    attributes:
+      label: Co se stalo
+      description: Co je špatně? Co jsi očekával vs. co se stalo?
+      placeholder: "Očekávané chování vs. reálný výsledek"
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: Kroky k reprodukci
+      description: Jak chybu spustit?
+      placeholder: "1) ...\n2) ...\n3) ..."
+    validations:
+      required: true
+  - type: input
+    id: env
+    attributes:
+      label: Prostředí
+      description: OS, verze Node/Java, zařízení, větev/commit
+      placeholder: "Kali Linux, Node 20.x, Java 17, commit abc123"
+  - type: textarea
+    id: logs
+    attributes:
+      label: Logy / screenshoty
+      description: Přilož chybové hlášky nebo obrázky

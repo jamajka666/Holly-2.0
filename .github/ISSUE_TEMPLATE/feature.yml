@@ -1,0 +1,21 @@
+name: "Feature request"
+description: Návrh nové funkce / vylepšení
+title: "feat: krátký popis"
+labels: [enhancement]
+body:
+  - type: textarea
+    id: summary
+    attributes:
+      label: Shrnutí
+      placeholder: "Co má feature řešit a proč?"
+    validations:
+      required: true
+  - type: textarea
+    id: acceptance
+    attributes:
+      label: Kritéria hotovo (DoD)
+      placeholder: "- [ ] ..."
+  - type: textarea
+    id: notes
+    attributes:
+      label: Poznámky / Inspirace

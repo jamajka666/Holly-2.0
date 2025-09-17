@@ -1,21 +1,42 @@
-steps:
-  - name: Checkout code
-    uses: actions/checkout@v4
+name: Release Builder
 
-  - name: Create Release
-    id: create_release
-    uses: softprops/action-gh-release@v1
-    with:
-      tag_name: v1.${{ github.run_number }}
-      name: Holly 2.0 Pro v1.${{ github.run_number }}
-      body: |
-        🆕 **Nové vydání Holly 2.0 Pro**
-        - Automatické sestavení APK
-        - Build ID: ${{ github.run_number }}
-        - Datum: ${{ github.event.head_commit.timestamp }}
+on:
+  workflow_dispatch:
+  push:
+    tags:
+      - "v*"
 
-  - name: Upload APK
-    uses: softprops/action-gh-release@v1
-    with:
-      files: |
-        Holly_2.0_Pro.apk
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Verify APK exists
+        run: |
+          test -f Holly_2.0_Pro.apk || (echo "APK not found (Holly_2.0_Pro.apk v rootu repa)" && exit 1)
+          ls -lh Holly_2.0_Pro.apk
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: v${{ github.run_number }}
+          name: "Holly 2.0 Pro v${{ github.run_number }}"
+          body: |
+            **Nové vydání Holly 2.0 Pro**
+            - Automatické nahrání APK
+            - Build ID: ${{ github.run_number }}
+            - Commit: ${{ github.sha }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Upload APK asset
+        uses: softprops/action-gh-release@v2
+        with:
+          files: Holly_2.0_Pro.apk
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
