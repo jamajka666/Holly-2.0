@@ -1,18 +1,10 @@
-## Co
-Krátké shrnutí změn.
+## Co PR dělá
+Krátké shrnutí.
 
-## Proč
-Důvod změny / řešený problém.
-
-## Jak otestovat
-1. ...
-2. ...
-
-## Screenshoty / Logy
-(pokud dává smysl)
+## Jak ověřit
+- [ ] Kroky k ověření / testy
 
 ## Checklist
-- [ ] Kód projde buildem a lintem
-- [ ] Testy (pokud relevantní)
-- [ ] Popis je srozumitelný
-- [ ] Navázané issue: Closes #<číslo> (pokud je)
+- [ ] Testy/README upraveny, pokud dává smysl
+- [ ] Neodstraňuju bezpečnostní kontroly
+- [ ] CI zelená
