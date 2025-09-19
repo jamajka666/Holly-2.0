@@ -5,20 +5,13 @@ on:
     types: [opened, reopened]
   pull_request:
     types: [opened, reopened]
-name: Auto add Issues & PRs to Project
-
-on:
-  issues:
-    types: [opened, reopened]
-  pull_request:
-    types: [opened, reopened]
-  workflow_dispatch:   # přidá manuální spouštěč
+  workflow_dispatch:   # manuální spuštění
 
 permissions:
   contents: read
   issues: write
   pull-requests: write
-  project: write
+  projects: write   # oprava: správný klíč je "projects", ne "project"
 
 jobs:
   add_to_project:
@@ -29,3 +22,4 @@ jobs:
         with:
           project-url: https://github.com/users/jamajka666/projects/3
           github-token: ${{ secrets.PROJECTS_TOKEN }}
+
