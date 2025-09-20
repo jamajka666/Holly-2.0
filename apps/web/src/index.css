@@ -1,1 +1,21 @@
-@import "tailwindcss";
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Fallback: ať je UI tmavé, i když by Tailwind náhodou neběžel */
+html, body, #root { height: 100%; background: #000; color: #fff; }
+
+:root{
+  --accent:#00ffb4;
+  --accent-weak:#00ffb480;
+  --hud-opacity:.22;
+  --rain-alpha:.10;
+}
+.neon-text{
+  text-shadow: 0 0 8px var(--accent-weak), 0 0 20px var(--accent-weak);
+}
+.neon-border{
+  box-shadow:
+    0 0 0 1px color-mix(in oklab, var(--accent) 40%, transparent) inset,
+    0 0 18px color-mix(in oklab, var(--accent) 25%, transparent);
+}

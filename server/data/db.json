@@ -1,0 +1,13 @@
+{
+  "audits": [
+    {
+      "id": 1,
+      "ts": 1758385581,
+      "user_id": "user123",
+      "event": "AUTH_PIN_LOGIN",
+      "meta": {
+        "ok": true
+      }
+    }
+  ]
+}

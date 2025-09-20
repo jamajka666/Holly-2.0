@@ -1,0 +1,66 @@
+{
+  "aiModels": {
+    "o4mini": {
+      "enabled": true,
+      "enabledForAllClients": true,
+      "modelName": "o4-mini-preview-20250915",
+      "description": "o4-mini (Preview) - Latest compact model with enhanced capabilities",
+      "maxTokens": 16384,
+      "temperature": 0.7,
+      "apiEndpoint": "https://api.openai.com/v1/chat/completions",
+      "priority": 1,
+      "features": {
+        "textGeneration": true,
+        "codeGeneration": true,
+        "reasoning": true,
+        "multimodal": true,
+        "fineTuning": false
+      }
+    },
+    "claudeSonnet4": {
+      "enabled": true,
+      "enabledForAllClients": false,
+      "modelName": "claude-3-5-sonnet-20241022",
+      "description": "Claude Sonnet 4 - Latest Anthropic model with enhanced capabilities",
+      "maxTokens": 8192,
+      "temperature": 0.7,
+      "apiEndpoint": "https://api.anthropic.com/v1/messages",
+      "priority": 2,
+      "features": {
+        "textGeneration": true,
+        "codeGeneration": true,
+        "reasoning": true,
+        "multimodal": true
+      }
+    },
+    "fallbackModels": {
+      "claude35Sonnet": {
+        "enabled": true,
+        "modelName": "claude-3-5-sonnet-20240620",
+        "priority": 3
+      },
+      "gpt4": {
+        "enabled": false,
+        "modelName": "gpt-4-turbo",
+        "priority": 4
+      }
+    }
+  },
+  "clientAccess": {
+    "globalSettings": {
+      "enableO4MiniForAll": true,
+      "enableClaudeSonnet4ForAll": false,
+      "allowModelSelection": true,
+      "defaultModel": "o4mini"
+    },
+    "restrictions": {
+      "rateLimiting": {
+        "enabled": true,
+        "requestsPerMinute": 60,
+        "requestsPerHour": 1000
+      }
+    }
+  },
+  "lastUpdated": "2025-09-20T12:00:00Z",
+  "version": "1.1.0"
+}
