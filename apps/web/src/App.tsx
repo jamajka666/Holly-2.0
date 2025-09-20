@@ -1,147 +1,102 @@
-
 import React, { useState } from "react";
-import { tokens } from "./styles/tokens";
-
-
-import ThemePreview from "./pages/ThemePreview";
-import VoiceButton from "./components/VoiceButton";
-import KnowledgePanel from "./components/KnowledgePanel";
 
 type BtnProps = React.ButtonHTMLAttributes<HTMLButtonElement> & {
   variant?: "primary" | "danger" | "warning" | "ghost";
 };
 
 const NeonButton: React.FC<BtnProps> = ({ variant = "primary", children, ...rest }) => {
-  const styles: React.CSSProperties = {
-    background:
-      variant === "primary"
-        ? tokens.colors.active
-        : variant === "danger"
-        ? tokens.colors.neonRed
-        : variant === "warning"
-        ? tokens.colors.neonOrange
-        : "transparent",
-    color:
-      variant === "ghost"
-        ? tokens.colors.neonGreen
-        : variant === "danger"
-        ? tokens.colors.white
-        : tokens.colors.black,
-    borderRadius: tokens.radius.sm,
-    boxShadow:
-      variant === "primary"
-        ? tokens.shadow.neon
-        : variant === "danger"
-        ? tokens.shadow.md
-        : variant === "warning"
-        ? tokens.shadow.neon
-        : "none",
-    padding: tokens.spacing.sm,
-    marginRight: tokens.spacing.sm,
-    border: variant === "ghost" ? `1px solid ${tokens.colors.neonGreen}` : "none",
-    outline: "none",
-    cursor: "pointer",
-    minWidth: 80,
-  };
   return (
-    <button style={styles} {...rest}>
-      {children}
+    <button className={`neon-btn ${variant}`} {...rest}>
+      <span className="btn-edge" />
+      <span className="btn-content">{children}</span>
     </button>
   );
 };
 
-function NeonCard({ title, children }: { title: string; children?: React.ReactNode }) {
+function NeonCard({
+  title,
+  children,
+}: {
+  title: string;
+  children?: React.ReactNode;
+}) {
   return (
-    <div
-      style={{
-        background: tokens.colors.surface,
-        borderRadius: tokens.radius.md,
-        boxShadow: tokens.shadow.md,
-        padding: tokens.spacing.lg,
-        marginBottom: tokens.spacing.lg,
-        color: tokens.colors.white,
-      }}
-    >
-      <div style={{ marginBottom: tokens.spacing.sm, fontWeight: 700, color: tokens.colors.neonGreen }}>{title}</div>
-      <div>{children}</div>
+    <div className="neon-card">
+      <div className="card-header">
+        <span className="dot red" />
+        <span className="dot yellow" />
+        <span className="dot green" />
+        <span className="title">{title}</span>
+      </div>
+      <div className="card-body">{children}</div>
+      <div className="scanline" />
     </div>
   );
 }
 
-
-import { BrowserRouter, Routes, Route, Link } from "react-router-dom";
-
 export default function App() {
   const [armed, setArmed] = useState(false);
+
   return (
-    <BrowserRouter>
-      <div style={{ background: tokens.colors.black, minHeight: "100vh", color: tokens.colors.white }}>
-        <header style={{ padding: tokens.spacing.md, borderBottom: `1px solid ${tokens.colors.border}` }}>
-          <div style={{ fontWeight: 700, color: tokens.colors.neonGreen, fontSize: 24 }}>Holly 2.0</div>
-          <div style={{ color: tokens.colors.neonOrange, fontSize: 14 }}>Dark Neon Carbon UI</div>
-          <nav style={{ marginTop: tokens.spacing.sm }}>
-            <Link to="/" style={{ color: tokens.colors.neonGreen, marginRight: tokens.spacing.md }}>Home</Link>
-            <Link to="/theme" style={{ color: tokens.colors.neonOrange }}>ThemePreview</Link>
-          </nav>
-        </header>
-        <main style={{ padding: tokens.spacing.lg }}>
-          <KnowledgePanel />
-          <Routes>
-            <Route
-              path="/"
-              element={
-                <>
-                  <NeonCard title="Control Panel">
-                    <div>
-                      <NeonButton onClick={() => setArmed((v) => !v)}>
-                        {armed ? "🟢 Armed" : "⚪ Disarmed"}
-                      </NeonButton>
-                      <NeonButton variant="warning">⚠ Audit</NeonButton>
-                      <NeonButton variant="danger">⛔ Lockdown</NeonButton>
-                      <NeonButton variant="ghost">🛈 Status</NeonButton>
-                    </div>
-                    <div style={{ marginTop: tokens.spacing.sm, color: tokens.colors.neonGreen }}>
-                      Tip: tlačítka mají glow + focus ring pro klávesnici.
-                    </div>
-                  </NeonCard>
-                  <NeonCard title="Modules">
-                    <div style={{ display: "grid", gridTemplateColumns: "repeat(2, 1fr)", gap: tokens.spacing.md }}>
-                      <div>
-                        <div style={{ fontWeight: 600, color: tokens.colors.neonGreen }}>Vault</div>
-                        <div style={{ color: tokens.colors.gray }}>Encrypted store, PIN/Voice 2FA</div>
-                        <NeonButton style={{ width: "100%" }}>Open</NeonButton>
-                      </div>
-                      <div>
-                        <div style={{ fontWeight: 600, color: tokens.colors.neonGreen }}>Devices</div>
-                        <div style={{ color: tokens.colors.gray }}>Manage paired hardware</div>
-                        <NeonButton variant="warning" style={{ width: "100%" }}>Scan</NeonButton>
-                      </div>
-                      <div>
-                        <div style={{ fontWeight: 600, color: tokens.colors.neonGreen }}>Alerts</div>
-                        <div style={{ color: tokens.colors.gray }}>Rules & realtime events</div>
-                        <NeonButton variant="danger" style={{ width: "100%" }}>Clear</NeonButton>
-                      </div>
-                      <div>
-                        <div style={{ fontWeight: 600, color: tokens.colors.neonGreen }}>Assistant</div>
-                        <div style={{ color: tokens.colors.gray }}>Voice control & intents</div>
-                        <NeonButton variant="ghost" style={{ width: "100%" }}>Configure</NeonButton>
-                      </div>
-                    </div>
-                  </NeonCard>
-                  <VoiceButton />
-                </>
-              }
-            />
-            <Route path="/theme" element={<ThemePreview />} />
-          </Routes>
-        </main>
-        <footer style={{ padding: tokens.spacing.md, borderTop: `1px solid ${tokens.colors.border}` }}>
-          <span style={{ background: tokens.colors.online, color: tokens.colors.black, borderRadius: tokens.radius.full, padding: tokens.spacing.sm, marginRight: tokens.spacing.sm }}>ONLINE</span>
-          <span style={{ background: tokens.colors.warning, color: tokens.colors.black, borderRadius: tokens.radius.full, padding: tokens.spacing.sm, marginRight: tokens.spacing.sm }}>SYNC LAG</span>
-          <span style={{ background: tokens.colors.offline, color: tokens.colors.white, borderRadius: tokens.radius.full, padding: tokens.spacing.sm }}>FIREWALL TEST</span>
-        </footer>
-      </div>
-    </BrowserRouter>
+    <div className="app">
+      <header className="topbar">
+        <div className="brand">
+          <span className="badge">Holly 2.0</span>
+          <span className="subtitle">Dark Neon Carbon UI</span>
+        </div>
+        <div className="toolbar">
+          <NeonButton>Primary</NeonButton>
+          <NeonButton variant="warning">Warn</NeonButton>
+          <NeonButton variant="danger">Danger</NeonButton>
+          <NeonButton variant="ghost">Ghost</NeonButton>
+        </div>
+      </header>
+
+      <main className="container">
+        <NeonCard title="Control Panel">
+          <div className="row">
+            <NeonButton onClick={() => setArmed((v) => !v)}>
+              {armed ? "🟢 Armed" : "⚪ Disarmed"}
+            </NeonButton>
+            <NeonButton variant="warning">⚠ Audit</NeonButton>
+            <NeonButton variant="danger">⛔ Lockdown</NeonButton>
+            <NeonButton variant="ghost">🛈 Status</NeonButton>
+          </div>
+          <div className="hint">Tip: tlačítka mají glow + focus ring pro klávesnici.</div>
+        </NeonCard>
+
+        <NeonCard title="Modules">
+          <div className="grid">
+            <div className="tile">
+              <div className="tile-title">Vault</div>
+              <div className="tile-desc">Encrypted store, PIN/Voice 2FA</div>
+              <NeonButton className="w-full">Open</NeonButton>
+            </div>
+            <div className="tile">
+              <div className="tile-title">Devices</div>
+              <div className="tile-desc">Manage paired hardware</div>
+              <NeonButton variant="warning" className="w-full">Scan</NeonButton>
+            </div>
+            <div className="tile">
+              <div className="tile-title">Alerts</div>
+              <div className="tile-desc">Rules & realtime events</div>
+              <NeonButton variant="danger" className="w-full">Clear</NeonButton>
+            </div>
+            <div className="tile">
+              <div className="tile-title">Assistant</div>
+              <div className="tile-desc">Voice control & intents</div>
+              <NeonButton variant="ghost" className="w-full">Configure</NeonButton>
+            </div>
+          </div>
+        </NeonCard>
+      </main>
+
+      <footer className="statusbar">
+        <span className="pill ok">ONLINE</span>
+        <span className="pill warn">SYNC LAG</span>
+        <span className="pill danger">FIREWALL TEST</span>
+      </footer>
+    </div>
   );
 }
 

@@ -1,9 +1,0 @@
-<?xml version="1.0" encoding="utf-8"?>
-<resources>
-    <string name="app_name">Holly 2.0</string>
-    <string name="action_refresh">Obnovit</string>
-    <string name="action_settings">Nastavení</string>
-
-    <string name="offline_error_title">Offline / Chyba načtení</string>
-    <string name="offline_error_msg">Zkontroluj internet a potáhni dolů pro obnovu.</string>
-</resources>

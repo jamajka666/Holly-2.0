@@ -1,5 +1,0 @@
-<?xml version="1.0" encoding="utf-8"?>
-<resources>
-    <!-- Notifikace TWA (případné povolení kanálu apod.) -->
-    <bool name="enableNotification">true</bool>
-</resources>

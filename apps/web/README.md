@@ -1,12 +1,3 @@
-## PWA & Offline
-- PWA manifest: `apps/web/public/manifest.json` (start_url `/?source=twa`, display `standalone`)
-- Service Worker: `apps/web/public/sw.js` (cache-first shell, network-first `/api/*`)
-- Offline fallback: `apps/web/public/offline.html`
-- Registrace SW: `apps/web/src/pwa.ts` + import v `src/main.tsx`
-- Test lokálně: 
-  ```sh
-  npm -w @holly/web run build && npm -w @holly/web run preview
-  # otevři v prohlížeči -> DevTools -> Application -> Service Workers
 
 # PWA & Offline
 

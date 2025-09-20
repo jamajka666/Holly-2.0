@@ -1,5 +1,0 @@
-<?xml version="1.0" encoding="utf-8"?>
-<resources>
-    <!-- TWA splash fade-out v ms -->
-    <integer name="splashScreenFadeOutDuration">250</integer>
-</resources>
