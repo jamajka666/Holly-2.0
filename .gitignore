@@ -54,3 +54,8 @@ node_modules/
 .DS_Store
 Thumbs.db
 Holly-2.0/
+
+# Ignore nested .github duplicates
+**/Holly-2.0/.github/
+**/holly-2.0/.github/
+
