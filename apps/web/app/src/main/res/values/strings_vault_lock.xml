@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="vault_unlock_title">Odemknout trezor</string>
+    <string name="vault_use_pin">Zadat PIN</string>
+    <string name="vault_set_pin_title">Nastavit PIN</string>
+    <string name="vault_pin">PIN</string>
+    <string name="vault_pin_again">PIN znovu</string>
+    <string name="vault_pin_mismatch">PIN se neshoduje</string>
+    <string name="vault_pin_wrong">Nesprávný PIN</string>
+</resources>

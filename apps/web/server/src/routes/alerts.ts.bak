@@ -1,0 +1,45 @@
+import { Router } from "express";
+import { Alert } from "../models/Alert";
+import { scheduleFor, cancelOne } from "../lib/scheduler";
+
+export const alerts = Router();
+
+alerts.get("/", async (_req, res) => {
+  const list = await Alert.findAll({ order: [["createdAt", "DESC"]] });
+  res.json(list);
+});
+
+alerts.post("/", async (req, res) => {
+  const { title, message, cron, at, active = true } = req.body || {};
+  if (!title || !message || (!cron && !at)) return res.status(400).json({ error: "title, message a (cron|at) jsou povinné" });
+
+  const a = await Alert.create({ title, message, cron: cron || null, at: at || null, active: !!active });
+  scheduleFor(a);
+  res.status(201).json(a);
+});
+
+alerts.patch("/:id", async (req, res) => {
+  const a = await Alert.findByPk(Number(req.params.id));
+  if (!a) return res.status(404).json({ error: "Alert nenalezen" });
+
+  const { title, message, cron, at, active } = req.body || {};
+  if (title !== undefined) a.title = title;
+  if (message !== undefined) a.message = message;
+  if (cron !== undefined) a.cron = cron;
+  if (at !== undefined) a.at = at;
+  if (active !== undefined) a.active = !!active;
+  await a.save();
+
+  scheduleFor(a);
+  res.json(a);
+});
+
+alerts.delete("/:id", async (req, res) => {
+  const id = Number(req.params.id);
+  const a = await Alert.findByPk(id);
+  if (!a) return res.status(404).json({ error: "Alert nenalezen" });
+
+  cancelOne(id);
+  await a.destroy();
+  res.status(204).send();
+});

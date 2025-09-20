@@ -1,0 +1,152 @@
+:root{
+  color-scheme: dark;
+  --bg:#0a0b0c;
+  --text:#e8e8ea;
+  --muted:#a7a7ad;
+  --card: rgba(255,255,255,.06);
+  --border: rgba(255,255,255,.12);
+  --shadow: 0 12px 30px rgba(0,0,0,.35);
+
+  /* výchozí akcent = neon green */
+  --accent:#00f070;
+  --accent-weak:rgba(0,240,112,.16);
+  --accent-glow:0 0 12px rgba(0,240,112,.45), 0 0 28px rgba(0,240,112,.15);
+}
+body[data-accent="red"]{ --accent:#ff3b3b; --accent-weak:rgba(255,59,59,.16); --accent-glow:0 0 12px rgba(255,59,59,.45),0 0 28px rgba(255,59,59,.15) }
+body[data-accent="orange"]{ --accent:#ff9f2f; --accent-weak:rgba(255,159,47,.16); --accent-glow:0 0 12px rgba(255,159,47,.45),0 0 28px rgba(255,159,47,.15) }
+body[data-accent="cyan"]{ --accent:#38e0ff; --accent-weak:rgba(56,224,255,.16); --accent-glow:0 0 12px rgba(56,224,255,.45),0 0 28px rgba(56,224,255,.15) }
+
+*{box-sizing:border-box}
+html,body{height:100%}
+body{
+  margin:0; font-family:system-ui,Segoe UI,Roboto,Inter,sans-serif; color:var(--text);
+  /* vrstvy pozadí: carbon fiber -> hex grid (anim) -> blesky (blend) -> jemná viněta */
+  background:
+    radial-gradient(1200px 800px at 50% 8%, rgba(255,255,255,.07), transparent 55%),
+    url("/assets/www/img/bg-lightning.jpg") center/cover fixed,
+    url("/assets/www/img/bg-hex.jpg") center/1200px fixed,
+    repeating-linear-gradient(45deg,#0b0d10 0 6px,#0e1115 6px 12px);
+  background-blend-mode: normal, screen, normal, normal;
+  background-attachment: fixed,fixed,fixed,fixed;
+  animation: hexMove 28s linear infinite;
+}
+/* jemný posun hex vrstvy */
+@keyframes hexMove {
+  0%   { background-position: center, center, 0px 0px, 0 0; }
+  50%  { background-position: center, center, -60px -30px, 0 0; }
+  100% { background-position: center, center, 0px 0px, 0 0; }
+}
+
+/* NAV */
+.nav{
+  position:sticky; top:0; z-index:10;
+  display:flex; align-items:center; gap:.75rem;
+  padding:10px 14px; backdrop-filter: blur(8px);
+  background: linear-gradient(to bottom, rgba(0,0,0,.7), rgba(0,0,0,.35));
+  border-bottom:1px solid var(--border);
+}
+.brand{display:flex; align-items:center; gap:.6rem; font-weight:800; letter-spacing:.3px}
+.brand .logo{
+  width:28px; height:28px; border-radius:10px; display:grid; place-items:center;
+  background: radial-gradient(120% 120% at 30% 30%, var(--accent), transparent 65%);
+  box-shadow: var(--accent-glow); border:1px solid var(--accent-weak);
+}
+.brand .title{
+  font-size:1.08rem; position:relative; text-transform:uppercase; letter-spacing:.6px;
+  text-shadow: 0 0 6px rgba(0,0,0,.5);
+}
+/* glitch efekt na titulek */
+.brand .title::after{
+  content: attr(data-text);
+  position:absolute; inset:0;
+  clip-path: inset(0 0 0 0);
+  mix-blend-mode: lighten;
+  color:var(--accent);
+  text-shadow: var(--accent-glow);
+  animation: glitch 2.2s infinite steps(12);
+  opacity:.85;
+}
+@keyframes glitch{
+  0%{ clip-path: inset(0 0 0 0) translate(0,0) }
+  10%{ clip-path: inset(0 0 70% 0); transform: translate(-1px,-1px) }
+  20%{ clip-path: inset(50% 0 0 0); transform: translate(1px,.5px) }
+  30%{ clip-path: inset(0 0 85% 0); transform: translate(.5px,-.5px) }
+  40%{ clip-path: inset(80% 0 0 0); transform: translate(-.5px,1px) }
+  50%,100%{ clip-path: inset(0 0 0 0); transform: translate(0,0) }
+}
+
+.nav .spacer{flex:1}
+.nav .btn{
+  background:#14161a; border:1px solid var(--border); color:var(--text);
+  padding:8px 12px; border-radius:12px; cursor:pointer;
+}
+.nav .btn:hover{border-color:var(--accent); box-shadow: var(--accent-glow)}
+
+/* status chips */
+.chips{display:flex; gap:.5rem; align-items:center}
+.chip{
+  display:inline-flex; align-items:center; gap:.45rem;
+  padding:6px 10px; border-radius:999px; font-size:.85rem;
+  border:1px solid var(--border); background:rgba(0,0,0,.35)
+}
+.dot{width:8px; height:8px; border-radius:50%; background:var(--muted); box-shadow:0 0 8px rgba(255,255,255,.1)}
+.dot.on{ background:var(--accent); box-shadow: var(--accent-glow) }
+
+/* layout */
+.container{max-width:1060px; margin:22px auto; padding:0 16px}
+.grid{display:grid; gap:16px; grid-template-columns: repeat(12, 1fr)}
+.col-12{grid-column: span 12}
+.col-6{grid-column: span 6}
+@media (max-width:900px){ .col-6{grid-column:span 12} }
+
+.card{
+  background:linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,.03));
+  border:1px solid var(--border);
+  border-radius:16px; padding:18px; box-shadow:var(--shadow)
+}
+
+h1,h2,h3{margin:0 0 8px}
+h1{font-size:26px}
+h2{font-size:20px; opacity:.95}
+p{margin:.35rem 0; opacity:.9; line-height:1.65}
+
+/* neon akce */
+.actions{display:flex; gap:10px; flex-wrap:wrap; margin-top:10px}
+.btn{
+  background:#121417; color:var(--text);
+  padding:10px 14px; border-radius:12px; border:1px solid var(--border);
+  cursor:pointer; transition:transform .06s ease, box-shadow .12s ease, border-color .12s ease;
+}
+.btn:hover{border-color:var(--accent); box-shadow:var(--accent-glow)}
+.btn:active{transform:translateY(1px)}
+.btn-primary{
+  border-color:var(--accent); box-shadow:var(--accent-glow);
+  background: linear-gradient(180deg, rgba(0,0,0,.2), var(--accent-weak));
+}
+
+/* přepínač */
+.switch{ display:inline-flex; align-items:center; gap:.55rem; cursor:pointer; user-select:none }
+.switch input{display:none}
+.switch .track{
+  width:46px; height:26px; border-radius:999px; position:relative;
+  background:#171a1e; border:1px solid var(--border)
+}
+.switch .thumb{
+  position:absolute; top:50%; left:3px; transform:translateY(-50%);
+  width:20px; height:20px; border-radius:50%;
+  background:#23272e; box-shadow:0 2px 8px rgba(0,0,0,.5);
+  transition:left .16s ease, box-shadow .16s ease, background .16s ease;
+}
+.switch input:checked + .track{ border-color:var(--accent); box-shadow: var(--accent-glow) }
+.switch input:checked + .track .thumb{ left:23px; background:var(--accent) }
+
+/* mini log konzole */
+#console{
+  position:fixed; inset:auto 16px 16px 16px; max-height:36vh; overflow:auto;
+  background:rgba(8,10,12,.7); border:1px solid var(--border); border-radius:12px; padding:10px;
+  font: 12px/1.5 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace; color:#cfe3cf;
+  backdrop-filter: blur(6px); box-shadow: var(--shadow);
+}
+.logline{white-space:pre-wrap; margin:2px 0}
+.log-warn{color:#ffe28a}
+.log-err{color:#ff9a9a}

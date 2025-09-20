@@ -1,0 +1,44 @@
+plugins {
+    id 'com.android.application' version '8.5.2'
+    id 'org.jetbrains.kotlin.android' version '1.9.24'
+}
+
+android {
+    namespace 'app.netlify.holly2_pro.twa'
+    compileSdk 34
+
+    defaultConfig {
+        applicationId "app.netlify.holly2_pro.twa"
+        minSdk 24
+        targetSdk 34
+        versionCode 1
+        versionName "1.0"
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled false
+            // Pokud budeš zapínat minify, přidej i proguard rules:
+            // proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard/proguard-rules.pro'
+        }
+    }
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
+    kotlinOptions { jvmTarget = '1.8' }
+}
+
+dependencies {
+    implementation "androidx.navigation:navigation-fragment-ktx:2.7.7"
+    implementation "androidx.navigation:navigation-ui-ktx:2.7.7"
+    implementation "androidx.appcompat:appcompat:1.7.0"
+    implementation "com.google.android.material:material:1.12.0"
+    implementation "androidx.fragment:fragment-ktx:1.8.2"
+    implementation "androidx.swiperefreshlayout:swiperefreshlayout:1.1.0"
+    implementation "androidx.webkit:webkit:1.11.0"
+    implementation "androidx.recyclerview:recyclerview:1.3.2"
+    implementation "androidx.biometric:biometric:1.1.0"
+    implementation "androidx.security:security-crypto:1.1.0-alpha06"
+}

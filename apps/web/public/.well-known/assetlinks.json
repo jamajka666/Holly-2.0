@@ -1,0 +1,12 @@
+[
+  {
+   "relation": ["delegate_permission/common.handle_all_urls"],
+    "target": {
+      "namespace": "android_app",
+      "package_name": "app.netlify.holly2_pro.twa",
+      "sha256_cert_fingerprints": [
+        "04:AC:18:89:5B:4C:57:2F:F7:8D:2F:3C:CC:37:44:2D:F3:63:D8:FB:AA:85:09:DF:FB:46:3A:AB:01:6B:36:57"
+      ]
+    }
+  }
+]

@@ -1,0 +1,26 @@
+<!doctype html><html lang="cs"><head>
+<meta charset="utf-8"/><meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Push Test</title>
+<style>body{font-family:ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto,sans-serif;background:#0b0f1a;color:#e5e7eb;padding:24px}
+button{background:#10b981;color:#fff;border:0;border-radius:12px;padding:10px 14px;font-weight:700;cursor:pointer}button:hover{background:#059669}
+code,pre{background:#0f172a;padding:8px 10px;border-radius:8px;display:block;white-space:pre-wrap}.row{margin:14px 0}</style>
+</head><body>
+<h1>🔔 Web Push – rychlý test</h1>
+<div class="row">1) Klikni na <b>Subscribe</b> (vyžádá oprávnění, zaregistruje a odešle subscription na server).</div>
+<div class="row">2) V jiném terminálu ověř <code>curl http://localhost:4000/api/subscriptions/count</code>.</div>
+<div class="row"><button id="sub">Subscribe</button></div>
+<div class="row">Status:</div><pre id="log">–</pre>
+<script>
+const VAPID_PUBLIC="BIdYVqQHqUPLz6D0BfQnAf1kwlS0TAvBXr63ALpltz0H4eQjqXptFjQcibD1e344iwDZO_Wm4-i5aaxBU9_hE4c";
+const API="http://localhost:4000";
+const log=m=>{const el=document.getElementById('log');el.textContent+=(el.textContent==='–'?'':'\n')+m;console.log(m)};
+function toUint8(s){const p="=".repeat((4-(s.length%4))%4);const b=(s+p).replace(/-/g,"+").replace(/_/g,"/");const r=atob(b);return Uint8Array.from([...r].map(c=>c.charCodeAt(0)))}
+async function ensureSW(){if(!("serviceWorker"in navigator))throw new Error("Service Worker není podporován");const reg=await navigator.serviceWorker.getRegistration();if(!reg){await navigator.serviceWorker.register("/sw.js");log("SW: /sw.js zaregistrován")}return navigator.serviceWorker.ready}
+async function subscribe(){try{log("Začínám…");const reg=await ensureSW();const old=await reg.pushManager.getSubscription();if(old){await old.unsubscribe();log("Starý subscription odhlášen")}
+const perm=await Notification.requestPermission();log("Notification permission: "+perm);if(perm!=="granted")throw new Error("Notifications nejsou povoleny");
+const sub=await reg.pushManager.subscribe({userVisibleOnly:true,applicationServerKey:toUint8(VAPID_PUBLIC)});
+log("Subscription vytvořen (endpoint): "+sub.endpoint.slice(0,60)+"…");
+const res=await fetch(API+"/api/subscriptions",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(sub)});
+const text=await res.text();log("Server odpověď: "+text);log("Hotovo ✔ – teď: curl http://localhost:4000/api/subscriptions/count")}catch(e){log("Chyba: "+(e&&e.message?e.message:e))}}
+document.getElementById("sub").addEventListener("click",subscribe);
+</script></body></html>

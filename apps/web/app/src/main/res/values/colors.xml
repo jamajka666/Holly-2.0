@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Základ dark pozadí -->
+    <color name="holly_bg">#0B0D10</color>
+    <color name="holly_surface">#121418</color>
+
+    <!-- Neon akcenty -->
+    <color name="holly_neon_green">#00FF9C</color>
+    <color name="holly_neon_red">#FF375F</color>
+    <color name="holly_neon_orange">#FF8A00</color>
+    <color name="holly_neon_blue">#3EE7FF</color>
+
+    <!-- Primární / sekundární -->
+    <color name="colorPrimary">#00D18A</color>
+    <color name="colorOnPrimary">#0B0D10</color>
+    <color name="colorSecondary">#3EE7FF</color>
+    <color name="colorOnSecondary">#0B0D10</color>
+
+    <!-- Texty -->
+    <color name="holly_text_primary">#E6F1FF</color>
+    <color name="holly_text_secondary">#9BA7B4</color>
+
+    <!-- Toolbar/StatusBar -->
+    <color name="holly_toolbar_bg">#0E1115</color>
+    <color name="holly_status_bar">#090B0E</color>
+
+    <!-- Ripple -->
+    <color name="holly_ripple">#22FFFFFF</color>
+</resources>

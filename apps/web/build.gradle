@@ -1,0 +1,7 @@
+/**
+ * Root build.gradle – držíme prázdné (bez repositories),
+ * repozitáře řídí settings.gradle (pluginManagement + dependencyResolutionManagement).
+ */
+tasks.register('clean', Delete) {
+    delete rootProject.buildDir
+}

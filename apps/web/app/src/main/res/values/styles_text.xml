@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <!-- Nadpisy -->
+    <style name="Text.Holly.H1" parent="TextAppearance.Material3.DisplaySmall">
+        <item name="android:textColor">@color/holly_text_primary</item>
+        <item name="android:textStyle">bold</item>
+    </style>
+
+    <style name="Text.Holly.H2" parent="TextAppearance.Material3.HeadlineMedium">
+        <item name="android:textColor">@color/holly_text_primary</item>
+        <item name="android:textStyle">bold</item>
+    </style>
+
+    <style name="Text.Holly.H3" parent="TextAppearance.Material3.TitleLarge">
+        <item name="android:textColor">@color/holly_text_primary</item>
+        <item name="android:textStyle">bold</item>
+    </style>
+
+    <!-- Tělo textu -->
+    <style name="Text.Holly.Body" parent="TextAppearance.Material3.BodyLarge">
+        <item name="android:textColor">@color/holly_text_secondary</item>
+    </style>
+
+    <!-- Malý popisek -->
+    <style name="Text.Holly.Caption" parent="TextAppearance.Material3.BodySmall">
+        <item name="android:textColor">@color/holly_text_secondary</item>
+    </style>
+
+</resources>

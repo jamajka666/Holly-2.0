@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    android:background="@drawable/bg_carbon"
+    android:padding="16dp"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <LinearLayout
+        android:background="@drawable/bg_panel_dark"
+        android:orientation="vertical"
+        android:padding="16dp"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <TextView
+            style="@style/Text.Holly.H2"
+            android:text="Hlasové ovládání"
+            android:layout_marginBottom="8dp"/>
+
+        <TextView
+            style="@style/Text.Holly.Body"
+            android:id="@+id/txtStatus"
+            android:text="Povol mikrofon a podrž tlačítko pro mluvení."
+            android:layout_marginBottom="16dp"/>
+    </LinearLayout>
+
+    <Space
+        android:layout_width="1dp"
+        android:layout_height="16dp" />
+
+    <LinearLayout
+        android:background="@drawable/bg_panel_dark"
+        android:orientation="vertical"
+        android:padding="16dp"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnHoldToTalk"
+            style="@style/Widget.Material3.Button.OutlinedButton"
+            android:layout_width="match_parent"
+            android:layout_height="56dp"
+            android:text="🎤 Drž a mluv"
+            android:insetTop="8dp"
+            android:insetBottom="8dp"/>
+    </LinearLayout>
+</LinearLayout>

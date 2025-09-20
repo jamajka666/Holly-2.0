@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp" android:height="108dp"
+    android:viewportWidth="108" android:viewportHeight="108">
+    <!-- Neon H (2 svislé + 1 vodorovná) -->
+    <path android:fillColor="#00FF9C" android:pathData="M28,24 h10 v60 h-10 z"/>
+    <path android:fillColor="#00FF9C" android:pathData="M70,24 h10 v60 h-10 z"/>
+    <path android:fillColor="#00FF9C" android:pathData="M28,52 h52 v10 h-52 z"/>
+</vector>

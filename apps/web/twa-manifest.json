@@ -1,0 +1,53 @@
+{
+  "packageId": "app.netlify.holly2_pro.twa",
+  "host": "holly2-pro.netlify.app",
+  "name": "Holly 2.0",
+  "launcherName": "Holly",
+  "display": "fullscreen",
+  "themeColor": "#00FF6A",
+  "themeColorDark": "#000000",
+  "navigationColor": "#000000",
+  "navigationColorDark": "#000000",
+  "navigationDividerColor": "#000000",
+  "navigationDividerColorDark": "#000000",
+  "backgroundColor": "#0B0B0C",
+  "enableNotifications": true,
+  "startUrl": "/?source=pwa",
+  "iconUrl": "https://holly2-pro.netlify.app/icons/icon-512.png",
+  "maskableIconUrl": "https://holly2-pro.netlify.app/icons/icon-512.png",
+  "splashScreenFadeOutDuration": 300,
+  "signingKey": {
+    "path": "/home/bngsrt/Holly2_M3/M3/holly2/android.keystore",
+    "alias": "android"
+  },
+  "appVersionName": "1",
+  "appVersionCode": 1,
+  "shortcuts": [],
+  "generatorApp": "bubblewrap-cli",
+  "webManifestUrl": "https://holly2-pro.netlify.app/manifest.webmanifest",
+  "fallbackType": "customtabs",
+  "features": {
+    "playBilling": {
+      "enabled": true
+    },
+    "locationDelegation": {
+      "enabled": true
+    }
+  },
+  "alphaDependencies": {
+    "enabled": false
+  },
+  "enableSiteSettingsShortcut": true,
+  "isChromeOSOnly": false,
+  "isMetaQuest": false,
+  "fullScopeUrl": "https://holly2-pro.netlify.app/",
+  "minSdkVersion": 21,
+  "orientation": "any",
+  "fingerprints": [],
+  "additionalTrustedOrigins": [],
+  "retainedBundles": [],
+  "protocolHandlers": [],
+  "fileHandlers": [],
+  "launchHandlerClientMode": "",
+  "appVersion": "1"
+}
