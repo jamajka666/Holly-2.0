@@ -23,18 +23,23 @@ jobs:
           cache: npm
 
       - name: Install deps
-        run: npm ci
-
-      - name: Build web (workspace with fallbacks)
+        working-directory: holly-2.0/apps/web
         run: |
-          set -e
-          npm -w @holly/web run build || {
-            echo "Workspace build failed or workspace not found, trying fallbacks..."
-            if [ -d "apps/web" ]; then (cd apps/web && npm ci && npm run build); \
-            elif [ -d "web" ]; then (cd web && npm ci && npm run build); \
-            elif [ -d "packages/web" ]; then (cd packages/web && npm ci && npm run build); \
-            else echo "No known web directory found"; exit 1; fi
-          }
+          if [ -f package-lock.json ] || [ -f npm-shrinkwrap.json ] || [ -f yarn.lock ]; then
+            npm ci
+          else
+            npm install
+          fi
+
+      - name: Build web
+        working-directory: holly-2.0/apps/web
+        run: npm run build
+
+      - name: Upload web dist
+        uses: actions/upload-artifact@v4
+        with:
+          name: web-dist
+          path: holly-2.0/apps/web/dist
 
       - name: Locate dist path
         id: find_dist
