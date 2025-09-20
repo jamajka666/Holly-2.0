@@ -5,13 +5,13 @@ on:
     types: [opened, reopened]
   pull_request:
     types: [opened, reopened]
-  workflow_dispatch:   # manuální spuštění
+  workflow_dispatch:
 
 permissions:
   contents: read
   issues: write
   pull-requests: write
-  projects: write   # oprava: správný klíč je "projects", ne "project"
+  projects: write
 
 jobs:
   add_to_project:
@@ -22,4 +22,3 @@ jobs:
         with:
           project-url: https://github.com/users/jamajka666/projects/3
           github-token: ${{ secrets.PROJECTS_TOKEN }}
-
