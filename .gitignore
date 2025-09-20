@@ -1,3 +1,27 @@
+# Build folders
+node_modules/
+dist/
+build/
+.vite/
+.turbo/
+.cache/
+
+# CI artifacts
+ci_artifacts/
+
+# Environment files
+.env*
+!.env.example
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Duplicate Holly folders and .github
+**/Holly-2.0/
+**/holly-2.0/
+**/Holly-2.0/.github/
+**/holly-2.0/.github/
 # Node / Vite / React
 node_modules/
 dist/

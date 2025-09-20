@@ -1,0 +1,88 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  web:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          submodules: false
+          fetch-depth: 0
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20.x
+          cache: npm
+
+      - name: Install deps
+        working-directory: apps/web
+        run: |
+          if [ -f package-lock.json ] || [ -f npm-shrinkwrap.json ] || [ -f yarn.lock ]; then
+            npm ci
+          else
+            npm install
+          fi
+
+      - name: Build web
+        working-directory: apps/web
+        run: npm run build
+
+      - name: Upload web dist
+        uses: actions/upload-artifact@v4
+        with:
+          name: web-dist
+          path: apps/web/dist
+          if-no-files-found: error
+
+  android-twa:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          submodules: false
+          fetch-depth: 0
+
+      - name: Setup JDK 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - name: Find gradlew
+        id: find_gradlew
+        run: |
+          set -e
+          export GRADLEW_PATH=$(find . -name gradlew | head -n1)
+          if [ -z "$GRADLEW_PATH" ]; then
+            echo "No gradlew found!" >&2
+            exit 1
+          fi
+          echo "Found gradlew at: $GRADLEW_PATH"
+          echo "gradlew_path=$GRADLEW_PATH" >> "$GITHUB_OUTPUT"
+
+      - name: Build Android TWA (debug)
+        run: |
+          chmod +x ${{ steps.find_gradlew.outputs.gradlew_path }}
+          cd $(dirname ${{ steps.find_gradlew.outputs.gradlew_path }})
+          ./gradlew :app:assembleDebug
+
+      - name: Upload APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: android-apk
+          path: '**/app/build/outputs/apk/debug/*.apk'
+          if-no-files-found: error
+          path: ${{ steps.locate_gradle.outputs.dir }}/app/build/outputs/apk/debug/*.apk
