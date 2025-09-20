@@ -22,24 +22,38 @@ jobs:
           node-version: 20.x
           cache: npm
 
-      - name: Install deps
-        working-directory: holly-2.0/apps/web
-        run: |
-          if [ -f package-lock.json ] || [ -f npm-shrinkwrap.json ] || [ -f yarn.lock ]; then
-            npm ci
-          else
-            npm install
-          fi
+        - name: Locate web package.json
+          id: locate_web
+          shell: bash
+          run: |
+            set -e
+            FOUND=$(find . -type f -path "*/apps/web/package.json" | head -n1)
+            if [ -z "$FOUND" ]; then
+              echo "apps/web/package.json not found!" >&2
+              exit 1
+            fi
+            echo "Found at: $FOUND"
+            DIR=$(dirname "$FOUND")
+            echo "dir=$DIR" >> "$GITHUB_OUTPUT"
 
-      - name: Build web
-        working-directory: holly-2.0/apps/web
-        run: npm run build
+        - name: Install deps
+          working-directory: ${{ steps.locate_web.outputs.dir }}
+          run: |
+            if [ -f package-lock.json ] || [ -f npm-shrinkwrap.json ] || [ -f yarn.lock ]; then
+              npm ci
+            else
+              npm install
+            fi
 
-      - name: Upload web dist
-        uses: actions/upload-artifact@v4
-        with:
-          name: web-dist
-          path: holly-2.0/apps/web/dist
+        - name: Build web
+          working-directory: ${{ steps.locate_web.outputs.dir }}
+          run: npm run build
+
+        - name: Upload web dist
+          uses: actions/upload-artifact@v4
+          with:
+            name: web-dist
+            path: ${{ steps.locate_web.outputs.dir }}/dist
 
       - name: Locate dist path
         id: find_dist
