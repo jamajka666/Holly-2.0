@@ -22,14 +22,41 @@ jobs:
       - name: Install deps
         run: npm ci
 
-      - name: Build web
-        run: npm -w @holly/web run build
+      - name: Build web (workspace with fallbacks)
+        run: |
+          set -e
+          npm -w @holly/web run build || {
+            echo "Workspace build failed or workspace not found, trying fallbacks..."
+            if [ -d "apps/web" ]; then (cd apps/web && npm ci && npm run build); \
+            elif [ -d "web" ]; then (cd web && npm ci && npm run build); \
+            elif [ -d "packages/web" ]; then (cd packages/web && npm ci && npm run build); \
+            else echo "No known web directory found"; exit 1; fi
+          }
+
+      - name: Locate dist path
+        id: find_dist
+        shell: bash
+        run: |
+          set -e
+          CANDIDATES=("apps/web/dist" "web/dist" "packages/web/dist" "frontend/dist" "dist")
+          for p in "${CANDIDATES[@]}"; do
+            if [ -d "$p" ] && [ -n "$(ls -A "$p")" ]; then
+              echo "Found dist at: $p"
+              echo "path=$p" >> "$GITHUB_OUTPUT"
+              exit 0
+            fi
+          done
+          echo "No dist folder found in candidates: ${CANDIDATES[*]}" >&2
+          echo "Workspace layout:"
+          ls -la
+          exit 1
 
       - name: Upload web dist
         uses: actions/upload-artifact@v4
         with:
           name: web-dist
-          path: apps/web/dist
+          path: ${{ steps.find_dist.outputs.path }}
+          if-no-files-found: error
 
   android-twa:
     runs-on: ubuntu-latest
