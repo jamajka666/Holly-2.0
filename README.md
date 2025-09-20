@@ -3,16 +3,11 @@
 Osobní AI asistent s prvky kyberbezpečnosti. Cíl: rychle zprovoznit užitečné MVP, které mi pomáhá při vývoji ShadowGuardu a dalších nástrojů.
 
 ## Stack
-- **Web (MVP):** React + Vite + TypeScript (`apps/web`)
-- **Později:** Node/Express backend (SSE/WebSocket pro Alerts), Android TWA, PWA offline
 
 ## Design
 Temné UI (černá/šedá + akcenty červená/oranžová/zelená), eDEX/hacker vibe, hex/cf vzor.
 
 ## Principy
-- Všechen kód pod mou kontrolou (žádný vendor lock-in).
-- Modulární milníky (M3.6 Audit Logs, M3.7 Alerts Engine, M3.8 UI Bootstrap).
-- PWA základy a postupné rozšiřování.
 
 ## Krátkodobé cíle MVP
 1) **M3.8 – UI Bootstrap:** layout, router (Dashboard/Alerts/Vault/Settings), dark mode, základ komponent.  
@@ -21,13 +16,32 @@ Temné UI (černá/šedá + akcenty červená/oranžová/zelená), eDEX/hacker v
 4) **PWA minimum:** manifest + service worker + offline fallback.
 
 ## Standardy kódu
-- TS strict, ESLint + Prettier.
-- Struktura webu: `apps/web/src/{pages,components,hooks,store,services,styles}`
-- Stav: Zustand/Redux Toolkit (podle potřeby jednoduchosti).
-- API volání jen přes `services/`, ne z komponent.
 
-## Copilot – jak pomáhat
-- Navrhuj malé PR-ready změny (50–150 řádků), s popisem „co a proč“.
-- Pokud je více cest, navrhni 2–3 varianty s trade-offy.
-- Drž se temného UI, logiku nemíchej do UI.
+
+## CI Quick-fix
+
+- Špatná cesta k artefaktu (dist/, APK)
+
+### Jak spustit lokálně
+```sh
+npm ci
+npm -w @holly/web run build
+cd apps/android-twa && ./gradlew :app:assembleDebug
+```
+
+### CI artefakty
+Najdeš v Actions → poslední run → Artifacts
+## TypeScript Quick-fix: Missing Dependencies
+
+Pokud build selže na chybě `Cannot find module 'react-router-dom'`, spusť:
+
+```sh
+npm install -w apps/web react-router-dom
+```
+
+nebo přidej do `apps/web/package.json`:
+
+```json
+"react-router-dom": "^6.22.3"
+```
 
