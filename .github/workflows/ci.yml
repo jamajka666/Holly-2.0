@@ -1,3 +1,24 @@
+      - name: Add PR/Issue to project (gh)
+        if: ${{ env.PROJECT_URL != '' }}
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          PROJECT_URL: ${{ secrets.PROJECT_URL }}   # např. https://github.com/users/<user>/projects/1 nebo org projekt
+        shell: bash
+        run: |
+          set -e
+          # vyžaduje GitHub CLI v runneru (je předinstalované)
+          # z URL získáme owner a číslo projektu
+          echo "Project: $PROJECT_URL"
+          if [[ -z "$PROJECT_URL" ]]; then
+            echo "No PROJECT_URL provided — skipping."
+            exit 0
+          fi
+          # Přidej aktuální item (PR/Issue) do projektu
+          if [[ "${{ github.event_name }}" == "pull_request" ]]; then
+            gh project item-add "$PROJECT_URL" --url "${{ github.event.pull_request.html_url }}"
+          else
+            gh project item-add "$PROJECT_URL" --url "${{ github.event.issue.html_url || github.event.repository.html_url }}"
+          fi
 name: CI
 
 on:
@@ -20,6 +41,15 @@ jobs:
           submodules: false
           fetch-depth: 0
 
+      - name: Check web presence
+        id: has_web
+        run: |
+          if [ -d "apps/web" ] && [ -f "apps/web/package.json" ]; then
+            echo "exists=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "exists=false" >> "$GITHUB_OUTPUT"
+          fi
+
       - name: Setup Node
         uses: actions/setup-node@v4
         with:
@@ -27,6 +57,7 @@ jobs:
           cache: npm
 
       - name: Install deps
+        if: ${{ steps.has_web.outputs.exists == 'true' }}
         working-directory: apps/web
         run: |
           if [ -f package-lock.json ] || [ -f npm-shrinkwrap.json ] || [ -f yarn.lock ]; then
@@ -36,15 +67,21 @@ jobs:
           fi
 
       - name: Build web
+        if: ${{ steps.has_web.outputs.exists == 'true' }}
         working-directory: apps/web
         run: npm run build
 
       - name: Upload web dist
+        if: ${{ steps.has_web.outputs.exists == 'true' }}
         uses: actions/upload-artifact@v4
         with:
           name: web-dist
           path: apps/web/dist
           if-no-files-found: error
+
+      - name: Skip web
+        if: ${{ steps.has_web.outputs.exists != 'true' }}
+        run: echo "No web workspace present, skipping web build."
 
   android-twa:
     runs-on: ubuntu-latest

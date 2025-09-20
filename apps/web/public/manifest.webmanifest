@@ -1,12 +1,21 @@
 {
-  "name": "Holly 2 – Alerts",
-  "short_name": "Alerts",
-  "start_url": "/",
+  "name": "Holly 2.0",
+  "short_name": "Holly",
+  "start_url": "/?source=twa",
   "display": "standalone",
-  "background_color": "#0b0f1a",
-  "theme_color": "#0b0f1a",
+  "background_color": "#000000",
+  "theme_color": "#00ffb4",
   "icons": [
-    { "src": "/icon-192.png", "sizes": "192x192", "type": "image/png" },
-    { "src": "/icon-512.png", "sizes": "512x512", "type": "image/png" }
+    { "src": "/icons/512-maskable.png", "sizes": "512x512", "type": "image/png", "purpose": "any maskable" }
+  ]
+}
+  "name": "Holly 2.0",
+  "short_name": "Holly",
+  "start_url": "/?source=twa",
+  "display": "standalone",
+  "background_color": "#000000",
+  "theme_color": "#00ffb4",
+  "icons": [
+    { "src": "/icons/512-maskable.png", "sizes": "512x512", "type": "image/png", "purpose": "any maskable" }
   ]
 }
