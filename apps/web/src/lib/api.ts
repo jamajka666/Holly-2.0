@@ -1,3 +1,48 @@
+export async function apiPingDevice(id: string) {
+  const res = await fetch(`/api/devices/${encodeURIComponent(id)}/ping`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+  });
+  if (!res.ok) throw new Error(`Ping failed: ${res.status}`);
+  return res.json();
+}
+
+export async function apiListDevices() {
+  const res = await fetch(`/api/devices`, { headers: { "Accept": "application/json" }});
+  if (!res.ok) throw new Error(`Devices fetch failed: ${res.status}`);
+  return res.json() as Promise<Array<{id:string; name:string; kind:string; state:"online"|"offline"}>>;
+}
+
+export async function apiDeviceReboot(id: string) {
+  const res = await fetch(`/api/devices/${encodeURIComponent(id)}/reboot`, { method: "POST" });
+  if (!res.ok) throw new Error(`Reboot failed: ${res.status}`);
+  return res.json();
+}
+export async function apiDevicePair(id: string) {
+  const res = await fetch(`/api/devices/${encodeURIComponent(id)}/pair`, { method: "POST" });
+  if (!res.ok) throw new Error(`Pair failed: ${res.status}`);
+  return res.json();
+}
+export async function apiDeviceUnpair(id: string) {
+  const res = await fetch(`/api/devices/${encodeURIComponent(id)}/unpair`, { method: "POST" });
+  if (!res.ok) throw new Error(`Unpair failed: ${res.status}`);
+  return res.json();
+}
+
+export async function apiVaultUnlock(payload: { pin?: string; password?: string; voice?: string }) {
+  const res = await fetch(`/api/vault/unlock`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(payload),
+  });
+  if (!res.ok) throw new Error(`Unlock failed: ${res.status}`);
+  return res.json();
+}
+export async function apiVaultLock() {
+  const res = await fetch(`/api/vault/lock`, { method: "POST" });
+  if (!res.ok) throw new Error(`Lock failed: ${res.status}`);
+  return res.json();
+}
 /** API base (DEV/PROD agnostické):
  *  - ""        -> použije se "/api"
  *  - "/api"    -> použije se "/api"

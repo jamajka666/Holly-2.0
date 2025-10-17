@@ -2,20 +2,50 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Fallback: ať je UI tmavé, i když by Tailwind náhodou neběžel */
-html, body, #root { height: 100%; background: #000; color: #fff; }
+/* Basic dark neon Holly theme (explicit CSS to avoid @apply resolution issues) */
+:root {
+  color-scheme: dark;
+  --bg: #0b0f12;
+  --panel: #12171c;
+  --mut: #1a2128;
+  --neon-1: #00e5ff; /* cyan */
+  --neon-2: #39ff14; /* green or red in SG */
+  --alert: #ff2e2e;
+  --accent: #ff8a00;
+}
+html, body, #root {
+  height: 100%;
+}
+body {
+  background-color: var(--bg);
+  color: #cbd5e1; /* slate-300 */
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  background-image:
+    radial-gradient(60rem 30rem at 120% -10%, #0f1620 0%, transparent 60%),
+    radial-gradient(40rem 20rem at -20% 110%, #131c26 0%, transparent 60%),
+    var(--bg-carbon, none);
+}
 
-:root{
-  --accent:#00ffb4;
-  --accent-weak:#00ffb480;
-  --hud-opacity:.22;
-  --rain-alpha:.10;
+/* subtle scanline overlay */
+body::after {
+  content: "";
+  position: fixed; inset: 0;
+  background: repeating-linear-gradient(
+    to bottom, rgba(0,0,0,0) 0px, rgba(0,0,0,0) 2px, rgba(255,255,255,0.02) 3px
+  );
+  pointer-events: none;
 }
-.neon-text{
-  text-shadow: 0 0 8px var(--accent-weak), 0 0 20px var(--accent-weak);
+
+@layer components {
+  .card { @apply rounded-2xl p-4; background: color-mix(in oklab, var(--panel) 90%, transparent); border: 1px solid #33415599; box-shadow: 0 0 12px color-mix(in srgb, var(--neon-1) 45%, transparent), inset 0 0 8px color-mix(in srgb, var(--neon-1) 20%, transparent); }
+  .btn { @apply inline-flex items-center gap-2 px-4 py-2 rounded-xl border transition; border-color: #47556999; }
+  .btn-primary { background: var(--mut); }
+  .glow { text-shadow: 0 0 8px color-mix(in srgb, var(--neon-1) 50%, transparent); }
 }
-.neon-border{
-  box-shadow:
-    0 0 0 1px color-mix(in oklab, var(--accent) 40%, transparent) inset,
-    0 0 18px color-mix(in oklab, var(--accent) 25%, transparent);
+
+/* accessibility */
+:focus-visible { outline: 2px solid #00e5ff; outline-offset: 2px; }
+@media (prefers-reduced-motion: reduce) {
+  * { animation: none !important; transition: none !important; }
 }
+

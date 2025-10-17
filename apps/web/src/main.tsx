@@ -1,18 +1,27 @@
-
 import React from "react";
-import { createRoot } from "react-dom/client";
-import "./styles/tailwind.css";
+import ReactDOM from "react-dom/client";
+import { RouterProvider } from "react-router-dom";
+import "./index.css";
+import { bootTheme } from "./theme/tokens";
+import { router } from "./router";
+import { ToastProvider } from "./lib/toast";
+import { AlertsProvider } from "./state/alerts";
+import { VoiceProvider } from "./voice/state";
 
-const App = () => (
-  <div className="min-h-screen bg-zinc-50 text-zinc-900 p-6">
-    <div className="max-w-xl mx-auto p-6 rounded-2xl shadow border bg-white">
-      <h1 className="text-2xl font-bold">Holly 2.0 – web bootstrap OK</h1>
-      <p className="mt-2 opacity-70 text-sm">Tailwind v4 aktivní.</p>
-    </div>
-  </div>
+ReactDOM.createRoot(document.getElementById("root")!).render(
+  <React.StrictMode>
+    <ToastProvider>
+      <AlertsProvider>
+        <VoiceProvider>
+          <RouterProvider router={router} />
+        </VoiceProvider>
+      </AlertsProvider>
+    </ToastProvider>
+  </React.StrictMode>
 );
 
-createRoot(document.getElementById("root")!).render(<App />);
+// boot theme profile from localStorage
+bootTheme();
 
 // Service worker registrace (PWA/offline)
 if ('serviceWorker' in navigator && import.meta.env.PROD) {
@@ -21,4 +30,9 @@ if ('serviceWorker' in navigator && import.meta.env.PROD) {
       .then(reg => console.log('SW registered:', reg.scope))
       .catch(err => console.warn('SW registration failed:', err));
   });
+}
+
+if (import.meta.env.DEV) {
+  import("./mocks/sseDev").then(m => m.bootDevSSEPolyfill());
+  import("./mocks/devApi").then(m => m.bootDevApiMocks());
 }

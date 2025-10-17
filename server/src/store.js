@@ -6,7 +6,7 @@ const FILE = path.join(__dirname, "../data/db.json");
 
 function load() {
   try { return JSON.parse(fs.readFileSync(FILE, "utf8")); }
-  catch { return { audits: [] }; }
+  
 }
 function save(db) { fs.writeFileSync(FILE, JSON.stringify(db, null, 2)); }
 

@@ -1,25 +1,20 @@
 import React, { useState } from "react";
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import LoginPage from "./pages/LoginPage";
 
+// Button with neon style
 type BtnProps = React.ButtonHTMLAttributes<HTMLButtonElement> & {
   variant?: "primary" | "danger" | "warning" | "ghost";
 };
+const NeonButton: React.FC<BtnProps> = ({ variant = "primary", children, ...rest }) => (
+  <button className={`neon-btn ${variant}`} {...rest}>
+    <span className="btn-edge" />
+    <span className="btn-content">{children}</span>
+  </button>
+);
 
-const NeonButton: React.FC<BtnProps> = ({ variant = "primary", children, ...rest }) => {
-  return (
-    <button className={`neon-btn ${variant}`} {...rest}>
-      <span className="btn-edge" />
-      <span className="btn-content">{children}</span>
-    </button>
-  );
-};
-
-function NeonCard({
-  title,
-  children,
-}: {
-  title: string;
-  children?: React.ReactNode;
-}) {
+// Card component with neon header
+function NeonCard({ title, children }: { title: string; children?: React.ReactNode }) {
   return (
     <div className="neon-card">
       <div className="card-header">
@@ -34,7 +29,8 @@ function NeonCard({
   );
 }
 
-export default function App() {
+// Main application layout
+function MainLayout() {
   const [armed, setArmed] = useState(false);
 
   return (
@@ -62,7 +58,9 @@ export default function App() {
             <NeonButton variant="danger">⛔ Lockdown</NeonButton>
             <NeonButton variant="ghost">🛈 Status</NeonButton>
           </div>
-          <div className="hint">Tip: tlačítka mají glow + focus ring pro klávesnici.</div>
+          <div className="hint">
+            Tip: tlačítka mají glow + focus ring pro klávesnici.
+          </div>
         </NeonCard>
 
         <NeonCard title="Modules">
@@ -97,6 +95,18 @@ export default function App() {
         <span className="pill danger">FIREWALL TEST</span>
       </footer>
     </div>
+  );
+}
+
+// App component with routing
+export default function App() {
+  return (
+    <Router>
+      <Routes>
+        <Route path="/login" element={<LoginPage />} />
+        <Route path="/*" element={<MainLayout />} />
+      </Routes>
+    </Router>
   );
 }
 
