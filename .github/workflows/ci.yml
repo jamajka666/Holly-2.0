@@ -2,13 +2,26 @@ name: CI (npm, workspaces)
 
 on:
   push:
-    branches: [ "**" ]
+    branches: [main]
+    paths:
+      - "apps/**"
+      - "packages/**"
+      - "config/**"
+      - "scripts/**"
+      - "package.json"
+      - "package-lock.json"
+      - ".github/workflows/ci.yml"
   pull_request:
+    branches: ["**"]
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
   build-and-test:
     runs-on: ubuntu-latest
-
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -17,30 +30,34 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: 20
-          cache: 'npm'
+          cache: npm
 
-      # Pokud máš v repu package-lock.json, použij ci pro čistou instalaci
-      - name: Install deps
+      - name: Verify lockfile exists
+        run: |
+          if [ ! -f package-lock.json ]; then
+            echo "::error::package-lock.json chybí. Spusť lokálně 'npm install' a commitni lockfile."
+            exit 1
+          fi
+
+      - name: Install deps (ci)
         run: npm ci
 
-      # Postavíme web i server přes workspace příkazy
       - name: Build web
         run: npm -w @holly/web run build
 
       - name: Build server
         run: npm -w @holly/server run build
 
-      # Spusť testy, pokud v některém workspace existují (necháme "if-present")
       - name: Test (if present)
         run: npm test --workspaces --if-present
 
-      # Artefakty z buildu – uprav cesty podle projektu
       - name: Upload web dist
         uses: actions/upload-artifact@v4
         with:
           name: web-dist
           path: apps/web/dist
-          if-no-files-found: ignore
+          if-no-files-found: error
+          retention-days: 7
 
       - name: Upload server dist
         uses: actions/upload-artifact@v4
@@ -48,3 +65,4 @@ jobs:
           name: server-dist
           path: apps/server/dist
           if-no-files-found: ignore
+          retention-days: 7
