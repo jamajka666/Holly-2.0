@@ -8,6 +8,12 @@ on:
 permissions:
   contents: write
 
+
+
+name: "Build Android TWA"
+on:
+  workf
+
 jobs:
   build:
     runs-on: ubuntu-latest
