@@ -22,6 +22,7 @@ a projekt používá [SemVer](https://semver.org/lang/cz/) (verze `MAJOR.MINOR.P
 - Odstraněny prázdné stuby `apps/server` (0 B soubory) a duplicitní `server/`
 - Root README přepsán na aktuální stav
 - Vite proxy → `127.0.0.1:4000`; výchozí bind Core jen localhost
+- CI: Web CI přepnuto na npm workspaces (oprava pnpm cache fail); Android workflowy nepadají na každý push main
 
 ### Odstraněno
 - Duplicitní `~/Projects/Holly2` (venv + screenshot)

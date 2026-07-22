@@ -1,80 +1,52 @@
 name: Web CI (Vite build + artifact)
 
+# Alias of monorepo web build — npm workspaces (not pnpm).
 on:
   push:
-    branches: [ main ]
-    paths-ignore:
-      - '**/*.md'
-      - '.github/**'
+    branches: [main]
+    paths:
+      - "apps/web/**"
+      - "package.json"
+      - "package-lock.json"
+      - ".github/workflows/web-ci.yml"
   pull_request:
-    branches: [ main ]
+    branches: [main]
+    paths:
+      - "apps/web/**"
+      - "package.json"
+      - "package-lock.json"
   workflow_dispatch:
+
+concurrency:
+  group: web-ci-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
   build:
     runs-on: ubuntu-latest
-
     steps:
       - name: Checkout
         uses: actions/checkout@v4
 
-      # Najdi web složku: prefer apps/web, pak web, jinak root
-      - name: Detect web directory
-        id: finddir
-        run: |
-          if [ -f apps/web/package.json ]; then
-            echo "dir=apps/web" >> "$GITHUB_OUTPUT"
-          elif [ -f web/package.json ]; then
-            echo "dir=web" >> "$GITHUB_OUTPUT"
-          elif [ -f package.json ]; then
-            echo "dir=." >> "$GITHUB_OUTPUT"
-          else
-            echo "Nenalezen package.json (apps/web, web, .)"; exit 1
-          fi
-          echo "Using dir: $(cat $GITHUB_OUTPUT)"
-      
       - name: Setup Node
         uses: actions/setup-node@v4
         with:
-          node-version: 20
-          cache: 'pnpm'
+          node-version: 22
+          cache: npm
 
-      - name: Setup pnpm
-        uses: pnpm/action-setup@v4
-        with:
-          version: 9
+      - name: Install (workspaces)
+        run: npm ci
 
-      # Instalace: pokud existuje pnpm-lock.yaml → pnpm, jinak npm
-      - name: Install deps
-        working-directory: ${{ steps.finddir.outputs.dir }}
-        run: |
-          if [ -f pnpm-lock.yaml ]; then
-            pnpm install --frozen-lockfile
-          else
-            npm ci
-          fi
+      - name: Build @holly/web
+        run: npm -w @holly/web run build
 
-      # Build: pokud je pnpm lock → pnpm run build, jinak npm run build
-      - name: Build
-        working-directory: ${{ steps.finddir.outputs.dir }}
-        run: |
-          if [ -f pnpm-lock.yaml ]; then
-            pnpm run build
-          else
-            npm run build
-          fi
+      - name: Verify dist
+        run: test -d apps/web/dist
 
-      # Ověř, že dist/ existuje (Vite default)
-      - name: Verify dist exists
-        working-directory: ${{ steps.finddir.outputs.dir }}
-        run: |
-          test -d dist || { echo "Missing dist/ (build failed or different outDir)"; exit 1; }
-
-      # Nahraj artefakt pro stažení (retention 7 dní)
       - name: Upload artifact (dist)
         uses: actions/upload-artifact@v4
         with:
           name: web-dist
-          path: ${{ steps.finddir.outputs.dir }}/dist
+          path: apps/web/dist
           if-no-files-found: error
           retention-days: 7
