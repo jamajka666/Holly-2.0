@@ -164,4 +164,90 @@ export async function agentChat(
   return res.json();
 }
 
+export type AuditEvent = {
+  id: number;
+  ts: number;
+  user_id: string | null;
+  event: string;
+  meta: Record<string, unknown>;
+};
+
+export async function getAuditRecent(limit = 40): Promise<AuditEvent[]> {
+  const res = await fetch(`${API}/audit/recent?limit=${limit}`, {
+    headers: authHeaders(),
+    cache: "no-store",
+  });
+  if (res.status === 401) {
+    setToken(null);
+    throw new Error("unauthorized");
+  }
+  if (!res.ok) throw new Error(`Audit failed: ${res.status}`);
+  const data = await res.json();
+  return data.items ?? [];
+}
+
+export type PolicyStatus = {
+  ownerOnly: boolean;
+  note: string;
+  shellAllowlist: string[];
+  shellReadonly?: string[];
+  workspaceRoots?: string[];
+  tools?: Record<string, string[]>;
+  desktop?: { openUrl: boolean; notify: boolean; clipboard: boolean };
+  confirmRequired?: string[];
+  voice?: { status?: string };
+  kali?: { status?: string; mode?: string };
+  pin?: { source?: string; changeableAtRuntime?: boolean; note?: string };
+};
+
+export async function getPolicyStatus(): Promise<PolicyStatus> {
+  const res = await fetch(`${API}/policy/status`, { cache: "no-store" });
+  if (!res.ok) throw new Error(`Policy failed: ${res.status}`);
+  return res.json();
+}
+
+export async function desktopNotify(title: string, body = "") {
+  const res = await fetch(`${API}/desktop/notify`, {
+    method: "POST",
+    headers: authHeaders(true),
+    body: JSON.stringify({ title, body }),
+  });
+  if (res.status === 401) {
+    setToken(null);
+    throw new Error("unauthorized");
+  }
+  return res.json();
+}
+
+export async function desktopOpenUrl(url: string) {
+  const res = await fetch(`${API}/desktop/open-url`, {
+    method: "POST",
+    headers: authHeaders(true),
+    body: JSON.stringify({ url }),
+  });
+  if (res.status === 401) {
+    setToken(null);
+    throw new Error("unauthorized");
+  }
+  return res.json();
+}
+
+export async function desktopCapabilities() {
+  const res = await fetch(`${API}/desktop/capabilities`, {
+    headers: authHeaders(),
+    cache: "no-store",
+  });
+  if (res.status === 401) {
+    setToken(null);
+    throw new Error("unauthorized");
+  }
+  if (!res.ok) throw new Error(`Desktop caps failed: ${res.status}`);
+  return res.json() as Promise<{
+    ok: boolean;
+    openUrl: boolean;
+    notify: boolean;
+    clipboard: boolean;
+  }>;
+}
+
 export { API };

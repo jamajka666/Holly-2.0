@@ -7,6 +7,7 @@ import { authRouter } from "./routes/auth.js";
 import { auditRouter } from "./routes/audit.js";
 import { policyRouter } from "./routes/policy.js";
 import { agentRouter } from "./routes/agent.js";
+import { desktopRouter } from "./routes/desktop.js";
 import { addAudit } from "./lib/audit.js";
 import { generateAlert } from "./lib/alerts.js";
 import { listWorkspaceRoots } from "./tools/fs.js";
@@ -36,6 +37,7 @@ app.use(authRouter);
 app.use(auditRouter);
 app.use(policyRouter);
 app.use(agentRouter);
+app.use(desktopRouter);
 
 // Seed a few alerts so Dashboard is not empty on first paint
 for (let i = 0; i < 3; i++) generateAlert();

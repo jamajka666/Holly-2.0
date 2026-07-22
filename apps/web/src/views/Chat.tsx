@@ -25,6 +25,7 @@ const QUICK = [
   { label: "git diff", text: "git diff" },
   { label: "read README", text: "read README.md" },
   { label: "search agent", text: "search runAgent" },
+  { label: "notify", text: "notify Holly | Test z chatu" },
   { label: "workspace", text: "workspace" },
 ];
 

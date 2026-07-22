@@ -54,14 +54,18 @@ You may use tools by emitting a single JSON object (no markdown fences):
 {"tool":"git_status","args":{}}
 {"tool":"git_diff","args":{"path":"apps/server"}}
 {"tool":"shell_exec","args":{"command":"ls -la"}}
+{"tool":"open_url","args":{"url":"https://example.com"}}
+{"tool":"notify","args":{"title":"Holly","body":"Done"}}
+{"tool":"clipboard_get","args":{}}
+{"tool":"clipboard_set","args":{"text":"hello"}}
 
 When finished, emit ONLY:
 {"reply":"your final answer"}
 
 Rules:
-- Prefer tools for filesystem/git facts.
+- Prefer tools for filesystem/git/desktop facts.
 - Workspace roots only: ${workspaceRoots.join(", ")}
-- fs_write and non-readonly shell require user confirm — if tool returns needsConfirm, tell the user to press Confirm in the UI.
+- open_url only http(s). fs_write and non-readonly shell need user Confirm in UI.
 - Do not invent paths. Keep replies concise (Czech or English matching the user).
-- Voice biometrics and Kali bridge are not available yet.`;
+- Voice and Kali bridge are not available yet.`;
 }

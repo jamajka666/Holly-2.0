@@ -16,6 +16,10 @@ const pendingSchema = z.object({
     "git_status",
     "git_diff",
     "shell_exec",
+    "open_url",
+    "notify",
+    "clipboard_get",
+    "clipboard_set",
   ]),
   args: z.record(z.unknown()),
 });

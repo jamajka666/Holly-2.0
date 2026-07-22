@@ -5,6 +5,12 @@ import { shellExec } from "../tools/shell.js";
 import { fsSearch } from "../tools/search.js";
 import { gitDiff, gitStatus } from "../tools/git.js";
 import {
+  clipboardGet,
+  clipboardSet,
+  desktopNotify,
+  openUrl,
+} from "../tools/desktop.js";
+import {
   ollamaAvailable,
   ollamaChat,
   systemPrompt,
@@ -40,7 +46,11 @@ type ToolName =
   | "fs_search"
   | "git_status"
   | "git_diff"
-  | "shell_exec";
+  | "shell_exec"
+  | "open_url"
+  | "notify"
+  | "clipboard_get"
+  | "clipboard_set";
 
 type Parsed =
   | { type: "tool"; name: ToolName; args: Record<string, unknown> }
@@ -132,6 +142,14 @@ async function executeTool(
       });
     case "shell_exec":
       return shellExec(String(args.command ?? ""));
+    case "open_url":
+      return openUrl(String(args.url ?? ""));
+    case "notify":
+      return desktopNotify(String(args.title ?? "Holly"), String(args.body ?? ""));
+    case "clipboard_get":
+      return clipboardGet();
+    case "clipboard_set":
+      return clipboardSet(String(args.text ?? ""));
     default:
       return { ok: false, error: `unknown tool: ${name}` };
   }
@@ -317,16 +335,70 @@ async function heuristicRun(
     };
   }
 
+  const openMatch = m.match(/^(?:open|otevři|otevri)\s+(https?:\/\/\S+)/i);
+  if (openMatch?.[1]) {
+    const url = openMatch[1];
+    const output = await openUrl(url);
+    steps.push({ kind: "tool", name: "open_url", input: { url }, output });
+    return {
+      mode: "heuristic",
+      reply: output.ok ? `Otevřeno: ${url}` : `Chyba: ${output.error}`,
+      steps,
+    };
+  }
+
+  const notifyMatch = m.match(/^(?:notify|upozorni|toast)\s+(.+)$/i);
+  if (notifyMatch?.[1]) {
+    const rest = notifyMatch[1].trim();
+    const [title, ...bodyParts] = rest.split("|");
+    const output = await desktopNotify(title!.trim(), bodyParts.join("|").trim());
+    steps.push({
+      kind: "tool",
+      name: "notify",
+      input: { title: title!.trim() },
+      output,
+    });
+    return {
+      mode: "heuristic",
+      reply: output.ok ? `Notifikace odeslána: ${title}` : `Chyba: ${output.error}`,
+      steps,
+    };
+  }
+
+  if (/^clipboard\s*get$/i.test(lower) || /^clip\s*get$/i.test(lower)) {
+    const output = await clipboardGet();
+    steps.push({ kind: "tool", name: "clipboard_get", output });
+    return {
+      mode: "heuristic",
+      reply: output.ok
+        ? `Clipboard (${output.backend}):\n${output.text.slice(0, 2000)}`
+        : `Chyba: ${output.error}`,
+      steps,
+    };
+  }
+
+  const clipSet = m.match(/^(?:clipboard\s*set|clip\s*set)\s+([\s\S]+)$/i);
+  if (clipSet?.[1]) {
+    const text = clipSet[1];
+    const output = await clipboardSet(text);
+    steps.push({ kind: "tool", name: "clipboard_set", input: { bytes: text.length }, output });
+    return {
+      mode: "heuristic",
+      reply: output.ok
+        ? `Clipboard nastaven (${output.backend}, ${output.bytes} B)`
+        : `Chyba: ${output.error}`,
+      steps,
+    };
+  }
+
   return {
     mode: "heuristic",
     reply:
       "Heuristický režim (Ollama down). Příkazy:\n" +
-      "• `list` / `list apps`\n" +
-      "• `read README.md`\n" +
-      "• `search requireSession`\n" +
-      "• `git status` / `git diff`\n" +
-      "• `run ls -la` (readonly bez potvrzení; npm/node vyžaduje Potvrdit)\n" +
-      "• `write path <<< content` (vyžaduje Potvrdit)\n" +
+      "• `list` / `read` / `search` / `git status` / `git diff`\n" +
+      "• `run ls -la` · `write path <<< content` (confirm)\n" +
+      "• `open https://…` · `notify Title | body`\n" +
+      "• `clipboard get` / `clipboard set text`\n" +
       "• `workspace`",
     steps: [{ kind: "info", text: "fallback help" }],
   };

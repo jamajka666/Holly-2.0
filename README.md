@@ -34,8 +34,9 @@ Dark UI (black/grey + neon red/orange/green), eDEX / hacker vibe. Reference art 
 
 - **Unified monorepo** — one server (`@holly/server`), one web app.
 - **M1 / M1.5 agent** — PIN session, tools (fs/search/git/shell), write confirm, UI `/chat`.
+- **M3-lite** — desktop tools (`open_url`, `notify`, clipboard), audit feed on Dashboard, policy in Settings.
 - **Voice (M2):** deferred until better microphone.
-- **Not yet:** Kali bridge (M4), PC helpers (M3).
+- **Not yet:** Kali bridge (M4), encrypted vault.
 - **Related lab:** `~/lab-stt` (Whisper STT) — not vendored here yet.
 - **Archive:** `assets/archive/Holly-2.0-fail.png` from old `Projects/Holly2` folder.
 

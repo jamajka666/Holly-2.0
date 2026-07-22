@@ -11,7 +11,8 @@ a projekt používá [SemVer](https://semver.org/lang/cz/) (verze `MAJOR.MINOR.P
 - Reálný `@holly/server` (health, alerts, auth PIN, audit, policy/shell allowlist)
 - **M1 agent:** tools `fs_*` + `shell_exec`, `POST /agent/chat`, UI `/chat`
 - **M1.5:** session tokens, chráněný `/agent/chat`, `fs_search`, `git_status`/`git_diff`, confirm pro zápisy/shell
-- Heuristický režim bez Ollamy (`list` / `read` / `run` / `search` / `git status` / `workspace`)
+- **M3-lite:** desktop tools (`open_url`, `notify`, clipboard), `/desktop/*`, audit feed na Dashboard, policy v Settings
+- Heuristický režim bez Ollamy (`list` / `read` / `run` / `search` / `git status` / desktop příkazy)
 - `VISION.md` + aktualizovaný security model (owner-only, Kali VM)
 - Dashboard napojený na Core API (`apps/web/src/api`)
 - Archiv `assets/archive/Holly-2.0-fail.png` (z mrtvé složky `Projects/Holly2`)

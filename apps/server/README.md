@@ -24,7 +24,12 @@ npm run dev -w @holly/server
 | GET | `/policy/status` | Owner-only / allowlist status |
 | POST | `/policy/check-shell` | Classify shell command risk |
 | GET | `/agent/status` | Ollama + workspace status |
-| POST | `/agent/chat` | Agent message `{ message, history? }` |
+| POST | `/agent/chat` | Agent message `{ message, history? }` (session) |
+| GET | `/audit/recent` | Audit log (session) |
+| GET | `/desktop/capabilities` | xdg-open / notify / clipboard (session) |
+| POST | `/desktop/open-url` | Open http(s) URL (session) |
+| POST | `/desktop/notify` | Desktop notification (session) |
+| GET/POST | `/desktop/clipboard` | Clipboard get/set (session) |
 
 ## Agent (M1.5)
 
