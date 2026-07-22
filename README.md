@@ -1,47 +1,51 @@
 # Holly 2.0
 
-Osobní AI asistent s prvky kyberbezpečnosti. Cíl: rychle zprovoznit užitečné MVP, které mi pomáhá při vývoji ShadowGuardu a dalších nástrojů.
+Personal **owner-only** AI assistant: cyberpunk UI, local Core API, roadmap toward full agent + voice biometrics + Kali VM bridge.
+
+> See [VISION.md](./VISION.md) and [SECURITY.md](./SECURITY.md).
 
 ## Stack
 
+| Package | Path | Role |
+|---------|------|------|
+| `@holly/web` | `apps/web` | Vite + React PWA UI |
+| `@holly/server` | `apps/server` | Express Core API (health, alerts, auth PIN, audit, policy) |
+
+**Package manager:** npm workspaces (Node ≥ 20).
+
+## Quick start
+
+```sh
+export PATH="$HOME/.nvm/versions/node/v24.18.0/bin:$PATH"  # if needed
+cd ~/Holly-2.0
+npm install
+cp apps/server/.env.example apps/server/.env   # edit OWNER_PIN
+npm run dev:server   # http://127.0.0.1:4000
+npm run dev:web      # Vite dev server
+```
+
+Web expects API via `VITE_API_URL` (see `apps/web/.env.example`).
+
 ## Design
-Temné UI (černá/šedá + akcenty červená/oranžová/zelená), eDEX/hacker vibe, hex/cf vzor.
 
-## Principy
+Dark UI (black/grey + neon red/orange/green), eDEX / hacker vibe. Reference art in `assets/` and `pic/`.
 
-## Krátkodobé cíle MVP
-1) **M3.8 – UI Bootstrap:** layout, router (Dashboard/Alerts/Vault/Settings), dark mode, základ komponent.  
-2) **M3.7 – Alerts Engine:** SSE mock → seznam alertů, filtry, detail.  
-3) **M3.6 – Audit Logs:** záznamy akcí + jednoduché vyhledávání.  
-4) **PWA minimum:** manifest + service worker + offline fallback.
+## Current status (2026-07)
 
-## Standardy kódu
+- **Unified monorepo** — one server (`@holly/server`), one web app.
+- **Not yet:** agent tool loop, speaker ID, Kali bridge (planned milestones).
+- **Related lab:** `~/lab-stt` (Whisper STT) — not vendored here yet.
+- **Archive:** `assets/archive/Holly-2.0-fail.png` from old `Projects/Holly2` folder.
 
-
-## CI Quick-fix
-
-- Špatná cesta k artefaktu (dist/, APK)
-
-### Jak spustit lokálně
-```sh
-npm ci
-npm -w @holly/web run build
-cd apps/android-twa && ./gradlew :app:assembleDebug
-```
-
-### CI artefakty
-Najdeš v Actions → poslední run → Artifacts
-## TypeScript Quick-fix: Missing Dependencies
-
-Pokud build selže na chybě `Cannot find module 'react-router-dom'`, spusť:
+## Scripts
 
 ```sh
-npm install -w apps/web react-router-dom
+npm run dev:server
+npm run dev:web
+npm run build
+npm run typecheck
 ```
 
-nebo přidej do `apps/web/package.json`:
+## License / privacy
 
-```json
-"react-router-dom": "^6.22.3"
-```
-
+Private personal project. Do not publish builds that embed shell/Kali credentials.

@@ -17,21 +17,9 @@ pnpm-debug.log*
 .DS_Store
 .vscode/
 .idea/
-
-# Android/Gradle (pokud později použijeme TWA)
 *.iml
-.gradle/
-local.properties
-/.idea/
-.cxx/
-app/build/
-build/
-*/build/
-captures/
+Thumbs.db
 
-# Misc
-*.keystore
-*.jks
 # Android / Gradle
 .local.properties
 local.properties
@@ -45,17 +33,15 @@ local.properties
 .gradle/
 .gradle-cache/
 captures/
-# IDE
-.idea/
-*.iml
-# Node
-node_modules/
-# OS
-.DS_Store
-Thumbs.db
-Holly-2.0/
 
-# Ignore nested .github duplicates
+# Server runtime data
+apps/server/data/db.json
+apps/server/dist/
+
+# Nested accidental clones
 **/Holly-2.0/.github/
 **/holly-2.0/.github/
 
+# Package manager noise (use root package-lock only)
+apps/**/pnpm-lock.yaml
+apps/**/pnpm-workspace.yaml
