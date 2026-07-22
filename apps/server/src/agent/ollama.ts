@@ -58,14 +58,18 @@ You may use tools by emitting a single JSON object (no markdown fences):
 {"tool":"notify","args":{"title":"Holly","body":"Done"}}
 {"tool":"clipboard_get","args":{}}
 {"tool":"clipboard_set","args":{"text":"hello"}}
+{"tool":"kali_status","args":{}}
+{"tool":"kali_run","args":{"profile":"sysinfo"}}
+{"tool":"kali_run","args":{"profile":"ping","host":"127.0.0.1"}}
 
 When finished, emit ONLY:
 {"reply":"your final answer"}
 
 Rules:
-- Prefer tools for filesystem/git/desktop facts.
+- Prefer tools for filesystem/git/desktop/kali facts.
 - Workspace roots only: ${workspaceRoots.join(", ")}
-- open_url only http(s). fs_write and non-readonly shell need user Confirm in UI.
+- open_url only http(s). fs_write, non-readonly shell, and network Kali profiles need Confirm.
+- Kali has NO free shell — only profiles: sysinfo, whoami, ping, nmap_ping_scan, nmap_top_ports.
 - Do not invent paths. Keep replies concise (Czech or English matching the user).
-- Voice and Kali bridge are not available yet.`;
+- Voice biometrics are deferred.`;
 }

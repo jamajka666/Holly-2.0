@@ -250,4 +250,92 @@ export async function desktopCapabilities() {
   }>;
 }
 
+export type KaliProfileInfo = {
+  id: string;
+  title: string;
+  description: string;
+  risk: string;
+  needsConfirm: boolean;
+  args: { name: string; required?: boolean; description: string }[];
+};
+
+export type KaliStatus = {
+  ok: boolean;
+  configured: boolean;
+  enabled: boolean;
+  host: string | null;
+  port: number;
+  user: string;
+  identityFile: string;
+  keyExists: boolean;
+  profiles: KaliProfileInfo[];
+  activeJobs: { id: string; profile: string; startedAt: number }[];
+  recent: Record<string, unknown>[];
+};
+
+async function authedJson<T>(path: string, init?: RequestInit): Promise<T> {
+  const res = await fetch(`${API}${path}`, {
+    ...init,
+    headers: {
+      ...authHeaders(init?.method !== "GET" && init?.method !== undefined),
+      ...(init?.headers || {}),
+    },
+    cache: "no-store",
+  });
+  if (res.status === 401) {
+    setToken(null);
+    throw new Error("Session vypršela — přihlas se PIN kódem.");
+  }
+  const data = await res.json();
+  if (!res.ok && res.status !== 409) {
+    throw new Error(data.error || `${path} failed: ${res.status}`);
+  }
+  return data as T;
+}
+
+export function kaliStatus() {
+  return authedJson<KaliStatus>("/kali/status");
+}
+
+export function kaliPing() {
+  return authedJson<{
+    ok: boolean;
+    reachable: boolean;
+    error?: string;
+    latencyMs?: number;
+  }>("/kali/ping");
+}
+
+export function kaliRun(
+  profile: string,
+  args: Record<string, string> = {},
+  confirm = false,
+) {
+  return authedJson<{
+    ok: boolean;
+    error?: string;
+    needsConfirm?: boolean;
+    profile?: string;
+    command?: string;
+    code?: number | null;
+    stdout?: string;
+    stderr?: string;
+    timedOut?: boolean;
+    aborted?: boolean;
+    durationMs?: number;
+  }>("/kali/run", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ profile, args, confirm }),
+  });
+}
+
+export function kaliAbort(jobId?: string) {
+  return authedJson<{ ok: boolean; killed: string[] }>("/kali/abort", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ jobId }),
+  });
+}
+
 export { API };

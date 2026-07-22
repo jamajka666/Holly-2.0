@@ -10,6 +10,7 @@ import {
   desktopNotify,
   openUrl,
 } from "../tools/desktop.js";
+import { kaliPing, kaliRun, kaliStatus } from "../kali/ssh.js";
 import {
   ollamaAvailable,
   ollamaChat,
@@ -50,7 +51,9 @@ type ToolName =
   | "open_url"
   | "notify"
   | "clipboard_get"
-  | "clipboard_set";
+  | "clipboard_set"
+  | "kali_status"
+  | "kali_run";
 
 type Parsed =
   | { type: "tool"; name: ToolName; args: Record<string, unknown> }
@@ -117,6 +120,11 @@ function toolNeedsConfirm(name: ToolName, args: Record<string, unknown>): boolea
   if (name === "shell_exec") {
     return shellNeedsConfirm(String(args.command ?? ""));
   }
+  if (name === "kali_run") {
+    // medium/high profiles enforce confirm inside kaliRun; still gate agent UX
+    const profile = String(args.profile ?? "");
+    return profile !== "sysinfo" && profile !== "whoami";
+  }
   return false;
 }
 
@@ -150,6 +158,17 @@ async function executeTool(
       return clipboardGet();
     case "clipboard_set":
       return clipboardSet(String(args.text ?? ""));
+    case "kali_status":
+      return { ...kaliStatus(), ping: await kaliPing() };
+    case "kali_run": {
+      const profile = String(args.profile ?? "");
+      const rawArgs = (args.args as Record<string, string>) || {};
+      // flatten host/target convenience
+      const flat: Record<string, string> = { ...rawArgs };
+      if (args.host) flat.host = String(args.host);
+      if (args.target) flat.target = String(args.target);
+      return kaliRun(profile, flat, { confirm: Boolean(args.confirm) });
+    }
     default:
       return { ok: false, error: `unknown tool: ${name}` };
   }
@@ -167,7 +186,24 @@ async function runToolGated(
     addAudit("TOOL_NEEDS_CONFIRM", "owner", { name, argsPreview: JSON.stringify(args).slice(0, 200) });
     return { status: "needs_confirm", pending: { name, args } };
   }
-  const output = await executeTool(name, args);
+  const execArgs =
+    name === "kali_run" && confirm
+      ? { ...args, confirm: true }
+      : args;
+  const output = await executeTool(name, execArgs);
+  // kali_run may still return needsConfirm from bridge
+  if (
+    name === "kali_run" &&
+    output &&
+    typeof output === "object" &&
+    "needsConfirm" in output &&
+    (output as { needsConfirm?: boolean }).needsConfirm
+  ) {
+    return {
+      status: "needs_confirm",
+      pending: { name, args: { ...args, confirm: true } },
+    };
+  }
   return { status: "ok", output };
 }
 
@@ -391,6 +427,51 @@ async function heuristicRun(
     };
   }
 
+  if (/^kali\s*status$/i.test(lower) || lower === "kali") {
+    const output = { ...kaliStatus(), ping: await kaliPing() };
+    steps.push({ kind: "tool", name: "kali_status", output });
+    return {
+      mode: "heuristic",
+      reply: formatToolReply(output),
+      steps,
+    };
+  }
+
+  const kaliRunMatch = m.match(
+    /^kali\s+run\s+(\w+)(?:\s+(.+))?$/i,
+  );
+  if (kaliRunMatch) {
+    const profile = kaliRunMatch[1]!;
+    const rest = (kaliRunMatch[2] || "").trim();
+    const args: Record<string, string> = {};
+    if (rest) {
+      if (profile === "ping" || profile === "nmap_top_ports") args.host = rest.split(/\s+/)[0]!;
+      else if (profile === "nmap_ping_scan") args.target = rest.split(/\s+/)[0]!;
+    }
+    const gated = await runToolGated(
+      "kali_run",
+      { profile, ...args, args },
+      confirm,
+    );
+    if (gated.status === "needs_confirm") {
+      steps.push({ kind: "confirm", name: "kali_run", input: { profile, args } });
+      return {
+        mode: "heuristic",
+        needsConfirm: true,
+        pending: gated.pending,
+        reply: `Potřebuji potvrzení pro Kali profile **${profile}**.\nStiskni **Potvrdit**.`,
+        steps,
+      };
+    }
+    steps.push({
+      kind: "tool",
+      name: "kali_run",
+      input: { profile, args },
+      output: gated.output,
+    });
+    return { mode: "heuristic", reply: formatToolReply(gated.output), steps };
+  }
+
   return {
     mode: "heuristic",
     reply:
@@ -399,6 +480,7 @@ async function heuristicRun(
       "• `run ls -la` · `write path <<< content` (confirm)\n" +
       "• `open https://…` · `notify Title | body`\n" +
       "• `clipboard get` / `clipboard set text`\n" +
+      "• `kali status` · `kali run sysinfo` · `kali run ping 1.1.1.1` (confirm)\n" +
       "• `workspace`",
     steps: [{ kind: "info", text: "fallback help" }],
   };

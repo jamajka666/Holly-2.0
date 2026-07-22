@@ -166,7 +166,9 @@ export default function Dashboard() {
           </li>
           <li className="flex justify-between">
             <span>Kali</span>
-            <span className="text-slate-400">planned</span>
+            <Link to="/kali" className="text-holly-neon-green text-xs underline">
+              bridge
+            </Link>
           </li>
         </ul>
 

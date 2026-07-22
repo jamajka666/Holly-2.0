@@ -26,6 +26,7 @@ const QUICK = [
   { label: "read README", text: "read README.md" },
   { label: "search agent", text: "search runAgent" },
   { label: "notify", text: "notify Holly | Test z chatu" },
+  { label: "kali status", text: "kali status" },
   { label: "workspace", text: "workspace" },
 ];
 

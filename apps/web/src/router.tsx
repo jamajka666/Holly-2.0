@@ -5,6 +5,7 @@ import Settings from "./views/Settings";
 import Devices from "./views/Devices";
 import Notifications from "./views/Notifications";
 import Chat from "./views/Chat";
+import Kali from "./views/Kali";
 
 export const router = createBrowserRouter([
   {
@@ -13,6 +14,7 @@ export const router = createBrowserRouter([
     children: [
       { index: true, element: <Dashboard /> },
       { path: "chat", element: <Chat /> },
+      { path: "kali", element: <Kali /> },
       { path: "settings", element: <Settings /> },
       { path: "devices", element: <Devices /> },
       { path: "notifications", element: <Notifications /> },

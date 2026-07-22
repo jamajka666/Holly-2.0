@@ -20,6 +20,8 @@ const pendingSchema = z.object({
     "notify",
     "clipboard_get",
     "clipboard_set",
+    "kali_status",
+    "kali_run",
   ]),
   args: z.record(z.unknown()),
 });

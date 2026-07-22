@@ -33,9 +33,9 @@ Holly Core (@holly/server) — localhost by default
 | **M1** | Agent chat + fs/shell tools (allowlisted) | done |
 | **M1.5** | Session/PIN, search/git tools, write confirm, chat UX | done |
 | **M2** | Owner voice enrollment + speaker verification | **deferred** (better mic first) |
-| **M3-lite** | Desktop tools + audit feed + policy Settings | done / expanding |
+| **M3-lite** | Desktop tools + audit feed + policy Settings | done |
 | **M3** | Vault + richer confirmation tiers | next |
-| **M4** | Kali VM bridge (SSH tool profiles) | planned |
+| **M4** | Kali VM bridge (SSH tool profiles, no free shell) | scaffold done |
 | **M5** | Mobile TWA polish + CI green | planned |
 
 ## Related local labs (not in monorepo yet)

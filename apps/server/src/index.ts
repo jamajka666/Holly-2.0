@@ -8,9 +8,11 @@ import { auditRouter } from "./routes/audit.js";
 import { policyRouter } from "./routes/policy.js";
 import { agentRouter } from "./routes/agent.js";
 import { desktopRouter } from "./routes/desktop.js";
+import { kaliRouter } from "./routes/kali.js";
 import { addAudit } from "./lib/audit.js";
 import { generateAlert } from "./lib/alerts.js";
 import { listWorkspaceRoots } from "./tools/fs.js";
+import { kaliConfigured, loadKaliConfig } from "./kali/config.js";
 
 const app = express();
 const port = Number(process.env.PORT || 4000);
@@ -38,6 +40,7 @@ app.use(auditRouter);
 app.use(policyRouter);
 app.use(agentRouter);
 app.use(desktopRouter);
+app.use(kaliRouter);
 
 // Seed a few alerts so Dashboard is not empty on first paint
 for (let i = 0; i < 3; i++) generateAlert();
@@ -46,7 +49,13 @@ const listenHost = allowLan ? "0.0.0.0" : host;
 
 app.listen(port, listenHost, () => {
   addAudit("SERVER_START", "system", { host: listenHost, port });
+  const kali = loadKaliConfig();
   console.log(`[holly] @holly/server listening on http://${listenHost}:${port}`);
   console.log(`[holly] owner-only policy active; bind=${listenHost}`);
   console.log(`[holly] workspace roots: ${listWorkspaceRoots().join(", ")}`);
+  console.log(
+    `[holly] kali bridge: ${
+      kaliConfigured(kali) ? `enabled → ${kali.user}@${kali.host}:${kali.port}` : "not configured"
+    }`,
+  );
 });

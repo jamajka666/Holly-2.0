@@ -30,6 +30,12 @@ npm run dev -w @holly/server
 | POST | `/desktop/open-url` | Open http(s) URL (session) |
 | POST | `/desktop/notify` | Desktop notification (session) |
 | GET/POST | `/desktop/clipboard` | Clipboard get/set (session) |
+| GET | `/kali/status` | Kali bridge config + profiles (session) |
+| GET | `/kali/ping` | SSH reachability (session) |
+| POST | `/kali/run` | Whitelisted profile only (session) |
+| POST | `/kali/abort` | Kill active SSH jobs (session) |
+
+Kali setup: see `docs/KALI.md`.
 
 ## Agent (M1.5)
 
