@@ -1,6 +1,9 @@
 import { addAudit } from "../lib/audit.js";
+import { shellNeedsConfirm } from "../lib/security.js";
 import { fsList, fsRead, fsWrite, listWorkspaceRoots } from "../tools/fs.js";
 import { shellExec } from "../tools/shell.js";
+import { fsSearch } from "../tools/search.js";
+import { gitDiff, gitStatus } from "../tools/git.js";
 import {
   ollamaAvailable,
   ollamaChat,
@@ -9,11 +12,16 @@ import {
 } from "./ollama.js";
 
 export type AgentStep = {
-  kind: "tool" | "reply" | "llm" | "info";
+  kind: "tool" | "reply" | "llm" | "info" | "confirm";
   name?: string;
   input?: unknown;
   output?: unknown;
   text?: string;
+};
+
+export type PendingTool = {
+  name: ToolName;
+  args: Record<string, unknown>;
 };
 
 export type AgentResult = {
@@ -21,28 +29,42 @@ export type AgentResult = {
   steps: AgentStep[];
   mode: "ollama" | "heuristic";
   model?: string;
+  needsConfirm?: boolean;
+  pending?: PendingTool;
 };
 
-type ToolName = "fs_list" | "fs_read" | "fs_write" | "shell_exec";
+type ToolName =
+  | "fs_list"
+  | "fs_read"
+  | "fs_write"
+  | "fs_search"
+  | "git_status"
+  | "git_diff"
+  | "shell_exec";
 
 type Parsed =
   | { type: "tool"; name: ToolName; args: Record<string, unknown> }
   | { type: "reply"; text: string }
   | { type: "text"; text: string };
 
+export type RunAgentOptions = {
+  confirm?: boolean;
+  pending?: PendingTool | null;
+};
+
 const MAX_STEPS = 6;
+
+const TOOLS_ALWAYS_CONFIRM = new Set<ToolName>(["fs_write"]);
 
 function extractJsonObjects(text: string): unknown[] {
   const out: unknown[] = [];
   const trimmed = text.trim();
-  // whole message is JSON
   try {
     out.push(JSON.parse(trimmed));
     return out;
   } catch {
     /* continue */
   }
-  // fenced ```json
   const fence = trimmed.match(/```(?:json)?\s*([\s\S]*?)```/i);
   if (fence?.[1]) {
     try {
@@ -52,7 +74,6 @@ function extractJsonObjects(text: string): unknown[] {
       /* continue */
     }
   }
-  // first {...} block
   const start = trimmed.indexOf("{");
   const end = trimmed.lastIndexOf("}");
   if (start >= 0 && end > start) {
@@ -81,7 +102,15 @@ function parseAssistant(text: string): Parsed {
   return { type: "text", text };
 }
 
-async function runTool(
+function toolNeedsConfirm(name: ToolName, args: Record<string, unknown>): boolean {
+  if (TOOLS_ALWAYS_CONFIRM.has(name)) return true;
+  if (name === "shell_exec") {
+    return shellNeedsConfirm(String(args.command ?? ""));
+  }
+  return false;
+}
+
+async function executeTool(
   name: ToolName,
   args: Record<string, unknown>,
 ): Promise<unknown> {
@@ -92,6 +121,15 @@ async function runTool(
       return fsRead(String(args.path ?? ""));
     case "fs_write":
       return fsWrite(String(args.path ?? ""), String(args.content ?? ""));
+    case "fs_search":
+      return fsSearch(String(args.query ?? ""), String(args.path ?? "."));
+    case "git_status":
+      return gitStatus();
+    case "git_diff":
+      return gitDiff({
+        staged: Boolean(args.staged),
+        path: args.path ? String(args.path) : undefined,
+      });
     case "shell_exec":
       return shellExec(String(args.command ?? ""));
     default:
@@ -99,24 +137,139 @@ async function runTool(
   }
 }
 
+async function runToolGated(
+  name: ToolName,
+  args: Record<string, unknown>,
+  confirm: boolean,
+): Promise<
+  | { status: "ok"; output: unknown }
+  | { status: "needs_confirm"; pending: PendingTool }
+> {
+  if (toolNeedsConfirm(name, args) && !confirm) {
+    addAudit("TOOL_NEEDS_CONFIRM", "owner", { name, argsPreview: JSON.stringify(args).slice(0, 200) });
+    return { status: "needs_confirm", pending: { name, args } };
+  }
+  const output = await executeTool(name, args);
+  return { status: "ok", output };
+}
+
+function formatToolReply(output: unknown): string {
+  return "```json\n" + JSON.stringify(output, null, 2).slice(0, 6000) + "\n```";
+}
+
 /** Simple intent router when Ollama is offline. */
-async function heuristicRun(message: string): Promise<AgentResult> {
+async function heuristicRun(
+  message: string,
+  opts: RunAgentOptions,
+): Promise<AgentResult> {
   const steps: AgentStep[] = [];
+  const confirm = !!opts.confirm;
+
+  if (opts.pending && confirm) {
+    const gated = await runToolGated(opts.pending.name, opts.pending.args, true);
+    if (gated.status === "ok") {
+      steps.push({
+        kind: "tool",
+        name: opts.pending.name,
+        input: opts.pending.args,
+        output: gated.output,
+      });
+      return {
+        mode: "heuristic",
+        reply: `Potvrzeno · ${opts.pending.name}\n${formatToolReply(gated.output)}`,
+        steps,
+      };
+    }
+  }
+
   const m = message.trim();
   const lower = m.toLowerCase();
 
-  // shell: run `...` or "spusť: ..."
   const runMatch =
-    m.match(/^(?:run|spus[tť]|exec)\s*[:`]?\s*(.+)$/i) ||
-    m.match(/^`(.+)`$/);
+    m.match(/^(?:run|spus[tť]|exec)\s*[:`]?\s*(.+)$/i) || m.match(/^`(.+)`$/);
   if (runMatch?.[1]) {
     const command = runMatch[1].replace(/^`|`$/g, "").trim();
-    steps.push({ kind: "tool", name: "shell_exec", input: { command } });
-    const output = await shellExec(command);
-    steps.push({ kind: "tool", name: "shell_exec", output });
+    const gated = await runToolGated("shell_exec", { command }, confirm);
+    if (gated.status === "needs_confirm") {
+      steps.push({ kind: "confirm", name: "shell_exec", input: { command } });
+      return {
+        mode: "heuristic",
+        needsConfirm: true,
+        pending: gated.pending,
+        reply: `Potřebuji potvrzení pro shell:\n\`${command}\`\n\nStiskni **Potvrdit** v UI.`,
+        steps,
+      };
+    }
+    steps.push({
+      kind: "tool",
+      name: "shell_exec",
+      input: { command },
+      output: gated.output,
+    });
+    return { mode: "heuristic", reply: formatToolReply(gated.output), steps };
+  }
+
+  const writeMatch = m.match(
+    /^(?:write|zapiš|zapis)\s+(\S+)\s+<<<\s*([\s\S]+)$/i,
+  );
+  if (writeMatch) {
+    const path = writeMatch[1]!;
+    const content = writeMatch[2]!;
+    const gated = await runToolGated("fs_write", { path, content }, confirm);
+    if (gated.status === "needs_confirm") {
+      steps.push({ kind: "confirm", name: "fs_write", input: { path, content: content.slice(0, 80) } });
+      return {
+        mode: "heuristic",
+        needsConfirm: true,
+        pending: gated.pending,
+        reply: `Potřebuji potvrzení pro zápis do \`${path}\`.\nStiskni **Potvrdit**.`,
+        steps,
+      };
+    }
+    steps.push({
+      kind: "tool",
+      name: "fs_write",
+      input: { path },
+      output: gated.output,
+    });
+    return { mode: "heuristic", reply: formatToolReply(gated.output), steps };
+  }
+
+  const searchMatch = m.match(/^(?:search|najdi|grep|find)\s+(.+)$/i);
+  if (searchMatch?.[1]) {
+    const query = searchMatch[1].trim();
+    const output = await fsSearch(query);
+    steps.push({ kind: "tool", name: "fs_search", input: { query }, output });
+    if (!output.ok) {
+      return { mode: "heuristic", reply: `Chyba: ${output.error}`, steps };
+    }
+    const lines = output.hits
+      .map((h) => `${h.path}:${h.line}: ${h.text}`)
+      .join("\n");
     return {
       mode: "heuristic",
-      reply: formatToolReply(output),
+      reply: `Search "${query}" (${output.engine}, ${output.hits.length} hits):\n${lines || "(none)"}`,
+      steps,
+    };
+  }
+
+  if (/^git\s+status$/i.test(lower) || lower === "git status") {
+    const output = await gitStatus();
+    steps.push({ kind: "tool", name: "git_status", output });
+    return {
+      mode: "heuristic",
+      reply: output.ok ? output.output : `Chyba: ${output.error}`,
+      steps,
+    };
+  }
+
+  if (/^git\s*diff/i.test(m) || lower === "diff") {
+    const path = m.replace(/^git\s*diff\s*/i, "").trim() || undefined;
+    const output = await gitDiff({ path });
+    steps.push({ kind: "tool", name: "git_diff", input: { path }, output });
+    return {
+      mode: "heuristic",
+      reply: output.ok ? "```\n" + output.output.slice(0, 4000) + "\n```" : `Chyba: ${"error" in output ? output.error : "?"}`,
       steps,
     };
   }
@@ -167,37 +320,57 @@ async function heuristicRun(message: string): Promise<AgentResult> {
   return {
     mode: "heuristic",
     reply:
-      "Ollama není dostupná — běžím v heuristickém režimu.\n\n" +
-      "Zkus:\n" +
-      "• `list` nebo `list apps`\n" +
+      "Heuristický režim (Ollama down). Příkazy:\n" +
+      "• `list` / `list apps`\n" +
       "• `read README.md`\n" +
-      "• `run ls -la`\n" +
-      "• `workspace`\n\n" +
-      "Pro plný chat spusť Ollama (např. `ollama serve` + model z `OLLAMA_MODEL`).",
+      "• `search requireSession`\n" +
+      "• `git status` / `git diff`\n" +
+      "• `run ls -la` (readonly bez potvrzení; npm/node vyžaduje Potvrdit)\n" +
+      "• `write path <<< content` (vyžaduje Potvrdit)\n" +
+      "• `workspace`",
     steps: [{ kind: "info", text: "fallback help" }],
   };
-}
-
-function formatToolReply(output: unknown): string {
-  return "```json\n" + JSON.stringify(output, null, 2).slice(0, 6000) + "\n```";
 }
 
 export async function runAgent(
   message: string,
   history: ChatMessage[] = [],
+  opts: RunAgentOptions = {},
 ): Promise<AgentResult> {
   addAudit("AGENT_CHAT", "owner", {
     messagePreview: message.slice(0, 200),
+    confirm: !!opts.confirm,
   });
 
   const hasOllama = await ollamaAvailable();
   if (!hasOllama) {
-    return heuristicRun(message);
+    return heuristicRun(message, opts);
   }
 
   const roots = listWorkspaceRoots();
   const model = process.env.OLLAMA_MODEL || "llama3.2";
   const steps: AgentStep[] = [];
+  const confirm = !!opts.confirm;
+
+  // Direct confirmed pending tool from UI
+  if (opts.pending && confirm) {
+    const gated = await runToolGated(opts.pending.name, opts.pending.args, true);
+    if (gated.status === "ok") {
+      steps.push({
+        kind: "tool",
+        name: opts.pending.name,
+        input: opts.pending.args,
+        output: gated.output,
+      });
+      return {
+        mode: "ollama",
+        model,
+        reply: `Potvrzeno · ${opts.pending.name}\n${formatToolReply(gated.output)}`,
+        steps,
+      };
+    }
+  }
+
   const messages: ChatMessage[] = [
     { role: "system", content: systemPrompt(roots) },
     ...history.slice(-12),
@@ -215,22 +388,39 @@ export async function runAgent(
     }
 
     if (parsed.type === "tool") {
-      const output = await runTool(parsed.name, parsed.args);
+      const gated = await runToolGated(parsed.name, parsed.args, confirm && i === 0);
+      // Only the first tool in a confirm pass is auto-confirmed; subsequent writes still need confirm
+      if (gated.status === "needs_confirm") {
+        steps.push({
+          kind: "confirm",
+          name: parsed.name,
+          input: parsed.args,
+        });
+        return {
+          mode: "ollama",
+          model,
+          needsConfirm: true,
+          pending: gated.pending,
+          reply: `Potřebuji tvé potvrzení pro **${parsed.name}**.\n\nStiskni **Potvrdit** v UI, nebo akci zruš.`,
+          steps,
+        };
+      }
       steps.push({
         kind: "tool",
         name: parsed.name,
         input: parsed.args,
-        output,
+        output: gated.output,
       });
       messages.push({ role: "assistant", content: raw });
       messages.push({
         role: "user",
-        content: `Tool ${parsed.name} result:\n${JSON.stringify(output).slice(0, 8000)}\nContinue. Use {"reply":"..."} when done.`,
+        content: `Tool ${parsed.name} result:\n${JSON.stringify(gated.output).slice(0, 8000)}\nContinue. Use {"reply":"..."} when done.`,
       });
+      // After one confirmed write, further tools in same turn need new confirm
+      // (confirm flag only applies to the pending chain from UI)
       continue;
     }
 
-    // free text from model — treat as final
     addAudit("AGENT_REPLY", "owner", {
       mode: "ollama",
       steps: steps.length,

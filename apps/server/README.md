@@ -26,11 +26,13 @@ npm run dev -w @holly/server
 | GET | `/agent/status` | Ollama + workspace status |
 | POST | `/agent/chat` | Agent message `{ message, history? }` |
 
-## Agent (M1)
+## Agent (M1.5)
 
-- Tools: `fs_list`, `fs_read`, `fs_write`, `shell_exec` (allowlisted, workspace-scoped).
-- If Ollama is up → multi-step tool loop via local model.
-- If Ollama is down → heuristic commands: `list`, `read PATH`, `run CMD`, `workspace`.
+- **Auth:** `POST /auth/pin-login` → Bearer token; required for `POST /agent/chat`.
+- Tools: `fs_list`, `fs_read`, `fs_write`, `fs_search`, `git_status`, `git_diff`, `shell_exec`.
+- `fs_write` and non-readonly shell need `confirm: true` (+ optional `pending` tool).
+- Ollama up → multi-step tool loop; down → heuristic commands.
+- Voice features deferred.
 
 ## Env
 

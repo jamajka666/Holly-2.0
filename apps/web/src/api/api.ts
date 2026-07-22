@@ -1,5 +1,33 @@
-const API = (import.meta.env.VITE_API_URL as string | undefined)?.replace(/\/$/, "") ||
+const API =
+  (import.meta.env.VITE_API_URL as string | undefined)?.replace(/\/$/, "") ||
   "http://127.0.0.1:4000";
+
+const TOKEN_KEY = "holly.session.token";
+
+export function getToken(): string | null {
+  try {
+    return localStorage.getItem(TOKEN_KEY);
+  } catch {
+    return null;
+  }
+}
+
+export function setToken(token: string | null) {
+  try {
+    if (token) localStorage.setItem(TOKEN_KEY, token);
+    else localStorage.removeItem(TOKEN_KEY);
+  } catch {
+    /* ignore */
+  }
+}
+
+function authHeaders(json = false): HeadersInit {
+  const h: Record<string, string> = {};
+  if (json) h["Content-Type"] = "application/json";
+  const t = getToken();
+  if (t) h.Authorization = `Bearer ${t}`;
+  return h;
+}
 
 export type AlertItem = {
   id: string;
@@ -38,12 +66,19 @@ export type AgentStep = {
   text?: string;
 };
 
+export type PendingTool = {
+  name: string;
+  args: Record<string, unknown>;
+};
+
 export type AgentChatResponse = {
   ok: boolean;
   reply: string;
   mode: "ollama" | "heuristic";
   model?: string;
   steps: AgentStep[];
+  needsConfirm?: boolean;
+  pending?: PendingTool | null;
   error?: string;
 };
 
@@ -53,6 +88,8 @@ export type AgentStatus = {
   model: string;
   mode: string;
   workspaceRoots: string[];
+  authRequired?: boolean;
+  voice?: string;
 };
 
 export async function getAgentStatus(): Promise<AgentStatus> {
@@ -61,15 +98,65 @@ export async function getAgentStatus(): Promise<AgentStatus> {
   return res.json();
 }
 
+export async function pinLogin(pin: string, userId = "owner") {
+  const res = await fetch(`${API}/auth/pin-login`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ pin, userId }),
+  });
+  const data = await res.json();
+  if (!res.ok || !data.success) {
+    throw new Error(data.error || `Login failed: ${res.status}`);
+  }
+  setToken(data.token);
+  return data as { success: true; token: string; expiresAt: number };
+}
+
+export async function logout() {
+  try {
+    await fetch(`${API}/auth/logout`, {
+      method: "POST",
+      headers: authHeaders(),
+    });
+  } finally {
+    setToken(null);
+  }
+}
+
+export async function authSession(): Promise<{ authenticated: boolean; userId?: string }> {
+  const t = getToken();
+  if (!t) return { authenticated: false };
+  const res = await fetch(`${API}/auth/session`, {
+    headers: authHeaders(),
+    cache: "no-store",
+  });
+  if (!res.ok) {
+    setToken(null);
+    return { authenticated: false };
+  }
+  const data = await res.json();
+  return { authenticated: !!data.authenticated, userId: data.userId };
+}
+
 export async function agentChat(
   message: string,
   history: { role: "user" | "assistant"; content: string }[] = [],
+  opts: { confirm?: boolean; pending?: PendingTool | null } = {},
 ): Promise<AgentChatResponse> {
   const res = await fetch(`${API}/agent/chat`, {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ message, history }),
+    headers: authHeaders(true),
+    body: JSON.stringify({
+      message,
+      history,
+      confirm: opts.confirm,
+      pending: opts.pending ?? null,
+    }),
   });
+  if (res.status === 401) {
+    setToken(null);
+    throw new Error("Session vypršela — přihlas se PIN kódem.");
+  }
   if (!res.ok) {
     const err = await res.text();
     throw new Error(`Agent chat failed: ${res.status} ${err}`);

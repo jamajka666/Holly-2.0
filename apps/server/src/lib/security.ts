@@ -35,7 +35,43 @@ export const SHELL_ALLOWLIST = [
   "git",
   "node",
   "npm",
+  "rg",
+  "find",
+  "echo",
+  "which",
+  "file",
 ];
+
+/** Shell bins considered read-only (no confirm required). */
+export const SHELL_READONLY = new Set([
+  "ls",
+  "pwd",
+  "whoami",
+  "date",
+  "uname",
+  "df",
+  "free",
+  "cat",
+  "head",
+  "tail",
+  "wc",
+  "rg",
+  "find",
+  "which",
+  "file",
+  "echo",
+]);
+
+export function shellNeedsConfirm(cmd: string): boolean {
+  const bin = cmd.trim().split(/\s+/)[0]?.replace(/^.*\//, "") ?? "";
+  if (bin === "git") {
+    // only read-only git subcommands free
+    const sub = cmd.trim().split(/\s+/)[1] || "";
+    return !["status", "diff", "log", "show", "branch", "rev-parse"].includes(sub);
+  }
+  if (bin === "npm" || bin === "node") return true;
+  return !SHELL_READONLY.has(bin);
+}
 
 export function classifyShellCommand(cmd: string): PolicyDecision {
   const trimmed = cmd.trim();

@@ -38,6 +38,9 @@ captures/
 apps/server/data/db.json
 apps/server/dist/
 
+# Local agent scratch
+notes/
+
 # Nested accidental clones
 **/Holly-2.0/.github/
 **/holly-2.0/.github/
