@@ -33,7 +33,8 @@ Dark UI (black/grey + neon red/orange/green), eDEX / hacker vibe. Reference art 
 ## Current status (2026-07)
 
 - **Unified monorepo** — one server (`@holly/server`), one web app.
-- **Not yet:** agent tool loop, speaker ID, Kali bridge (planned milestones).
+- **M1 agent** — `POST /agent/chat` + UI `/chat` (fs/shell tools; Ollama optional).
+- **Not yet:** speaker ID, Kali bridge (M2/M4).
 - **Related lab:** `~/lab-stt` (Whisper STT) — not vendored here yet.
 - **Archive:** `assets/archive/Holly-2.0-fail.png` from old `Projects/Holly2` folder.
 

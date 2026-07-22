@@ -9,6 +9,8 @@ a projekt používá [SemVer](https://semver.org/lang/cz/) (verze `MAJOR.MINOR.P
 ### Přidáno
 - Sjednocený monorepo: npm workspaces (`@holly/web`, `@holly/server`)
 - Reálný `@holly/server` (health, alerts, auth PIN, audit, policy/shell allowlist)
+- **M1 agent:** tools `fs_*` + `shell_exec`, `POST /agent/chat`, UI `/chat`
+- Heuristický režim bez Ollamy (`list` / `read` / `run` / `workspace`)
 - `VISION.md` + aktualizovaný security model (owner-only, Kali VM)
 - Dashboard napojený na Core API (`apps/web/src/api`)
 - Archiv `assets/archive/Holly-2.0-fail.png` (z mrtvé složky `Projects/Holly2`)

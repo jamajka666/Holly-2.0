@@ -30,4 +30,51 @@ export async function getAlerts(): Promise<AlertsResponse> {
   return res.json();
 }
 
+export type AgentStep = {
+  kind: string;
+  name?: string;
+  input?: unknown;
+  output?: unknown;
+  text?: string;
+};
+
+export type AgentChatResponse = {
+  ok: boolean;
+  reply: string;
+  mode: "ollama" | "heuristic";
+  model?: string;
+  steps: AgentStep[];
+  error?: string;
+};
+
+export type AgentStatus = {
+  ok: boolean;
+  ollama: boolean;
+  model: string;
+  mode: string;
+  workspaceRoots: string[];
+};
+
+export async function getAgentStatus(): Promise<AgentStatus> {
+  const res = await fetch(`${API}/agent/status`, { cache: "no-store" });
+  if (!res.ok) throw new Error(`Agent status failed: ${res.status}`);
+  return res.json();
+}
+
+export async function agentChat(
+  message: string,
+  history: { role: "user" | "assistant"; content: string }[] = [],
+): Promise<AgentChatResponse> {
+  const res = await fetch(`${API}/agent/chat`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ message, history }),
+  });
+  if (!res.ok) {
+    const err = await res.text();
+    throw new Error(`Agent chat failed: ${res.status} ${err}`);
+  }
+  return res.json();
+}
+
 export { API };

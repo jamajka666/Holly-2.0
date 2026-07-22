@@ -1,5 +1,5 @@
 import { Outlet, NavLink } from "react-router-dom";
-import { Menu, Mic, Settings as Cog, Cpu, Bell } from "lucide-react";
+import { Menu, Mic, Settings as Cog, Cpu, Bell, MessageSquare } from "lucide-react";
 import { useState } from "react";
 import ThemeToggle from "./ThemeToggle";
 import VoiceButton from "./VoiceButton";
@@ -21,6 +21,7 @@ export default function AppShell() {
         </div>
         <nav className="px-2 space-y-2">
           <NavItem to="/" icon={<Cpu size={16}/>} label="Dashboard" open={open}/>
+          <NavItem to="/chat" icon={<MessageSquare size={16}/>} label="Agent" open={open}/>
           <NavItem to="/devices" icon={<Mic size={16}/>} label="Devices" open={open}/>
           <NavItem to="/notifications" icon={<Bell size={16}/>} label="Notifications" open={open}/>
           <NavItem to="/settings" icon={<Cog size={16}/>} label="Settings" open={open}/>
